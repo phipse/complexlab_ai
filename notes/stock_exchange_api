@@ -1,0 +1,19 @@
+A list of options to query finance data:
+
+YQL - Yahoo Query Language
+==========================================
+http://developer.yahoo.com/yql
+
+plug ins for
+Ruby/Rails
+Python/Django
+
+further reading:
+guide: http://developer.yahoo.com/yql/guide
+
+
+
+Google Finance API
+=====================================
+
+works only in context of google spreadsheet --> no further use here
