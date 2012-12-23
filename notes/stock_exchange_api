@@ -17,3 +17,15 @@ Google Finance API
 =====================================
 
 works only in context of google spreadsheet --> no further use here
+
+
+Bloomberg Stock API
+===================
+
+Downloadable python API for Bloomberg and FAQ
+http://developer.yahoo.com/yql
+
+
+Hackernews about fetching stock data
+====================================
+http://developer.yahoo.com/yql
