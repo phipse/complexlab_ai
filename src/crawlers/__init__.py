@@ -1,5 +1,7 @@
 from datetime import date
 from os import path
+import requests
+import json
 
 class API_crawler:
   index = 0
@@ -36,6 +38,7 @@ class API_crawler:
       self.index = 0
     return ret
 
+
   def run(self):
     startString = "http://ichart.finance.yahoo.com/table.csv?"
     for x in range(len(self.identifier)):
@@ -43,6 +46,40 @@ class API_crawler:
       buildString += self.setTimeFrame()
       self.requestAddresses.append(buildString)
 #    print len(self.requestAddresses)
+    self.requestCSV()
+    self.parseTimeClose()
+  
+  
+  def requestCSV(self):
+    r = requests.get(self.requestAddresses[0])
+    test = file( "response", "a" )
+    test.write(r.text)
+    test.flush()
+    test.close()
+    test = file( "response", "rw")
+    out = file( "result", "a")
+    for line in test.readlines():
+      line = line.split(",")
+      str = line[0] + "," + line[4] + "\n" 
+      out.write(str)
+      
+  def parseTimeClose(self):
+    f = file( "result", "r")
+    g = file( "times" , "a")
+    f.readline() # discard description line
+    li = f.readline()
+    datVal = li.split(",")
+    dat = datVal[0].split("-")
+    val = datVal[1].split("\n")[0]
+    ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
+    nojs = { self.identifier[0]: {ti: val}}
+    
+    print ti
+    print val
+    print nojs
+
+
+
 
 
 
