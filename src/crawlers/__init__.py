@@ -1,5 +1,7 @@
 from datetime import date
 from os import path
+import os
+import tempfile 
 import requests
 import json
 
@@ -47,37 +49,44 @@ class API_crawler:
       self.requestAddresses.append(buildString)
 #    print len(self.requestAddresses)
     self.requestCSV()
-    self.parseTimeClose()
   
   
   def requestCSV(self):
-    r = requests.get(self.requestAddresses[0])
-    test = file( "response", "a" )
-    test.write(r.text)
-    test.flush()
-    test.close()
-    test = file( "response", "rw")
-    out = file( "result", "a")
-    for line in test.readlines():
-      line = line.split(",")
-      str = line[0] + "," + line[4] + "\n" 
-      out.write(str)
-      
-  def parseTimeClose(self):
-    f = file( "result", "r")
-    g = file( "times" , "a")
-    f.readline() # discard description line
-    li = f.readline()
-    datVal = li.split(",")
-    dat = datVal[0].split("-")
-    val = datVal[1].split("\n")[0]
-    ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
-    nojs = { self.identifier[0]: {ti: val}}
+    cnt = 0
+    for symbol in self.requestAddresses:
+      r = requests.get(symbol)
+      if r.status_code == int(404): continue
+      print "symbol: " + symbol 
+      print "status: " + str(r.status_code)
+      storepath = "./dicts/"
     
-    print ti
-    print val
-    print nojs
+      test = tempfile.TemporaryFile()
+      test.write(r.text)
+      test.flush()
+      test.seek(0)
+      test.readline() #discard description
+      dictusMongus = dict()
 
+      for line in test.readlines():
+	line = line.split(",")
+	dat = line[0]
+	value = line[4]
+	dat = dat.split("-")
+	ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
+	dictusMongus.update( {ti:value} )
+
+      nojs = { self.identifier[cnt] : dictusMongus}
+      filename = storepath + self.identifier[cnt]
+      if not path.exists(storepath):
+	os.makedirs(storepath) 
+      if path.isfile(filename):
+	os.remove(filename)
+      f = file(filename, "w+")
+      f.write( str( nojs))
+      f.flush()
+      f.close()
+      cnt += 1
+    print "done"
 
 
 
