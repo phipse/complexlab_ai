@@ -79,31 +79,6 @@ class extractor(object):
         return "<Extractor conditions=%s>" % (str(self.__available_conditions),)
 
 
-class TestExtractor(unittest.TestCase):
-    data = list()
-
-    def setUp(self):
-        with open(args.datafile, "r") as f:
-            self.data = eval("".join(f.readlines()))
-
-    def test_cond(self):
-        e = extractor()
-        logging.debug(e)
-        e.add_feature_condition(condition.dummy_condition)
-        res = e.extract(self.data)
-        self.assertTrue(len(res[self.data.keys()[0]]) > 0)
-
-    def test_monotony(self):
-        import monotony
-        e = extractor()
-        logging.debug(e)
-        e.add_feature_condition(monotony.raising)
-        e.add_feature_condition(monotony.falling)
-        res = e.extract(self.data)
-        logging.debug("res: \n%s", pprint.pformat(res))
-        self.assertTrue(len(res[self.data.keys()[0]]) > 0)
-
-
 if __name__ == "__main__":
     app = argparse.ArgumentParser(description="General testings of Extractor")
     app.add_argument("datafile",
