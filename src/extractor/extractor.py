@@ -14,12 +14,13 @@ import condition
 
 class extractor(object):
     """extracts features from datasets"""
-    __feature_conditions = list()
-    __running_conditions = list()
+    def __init__(self):
+        self.__available_conditions = list()
+        self.__running_conditions = list()
 
     def add_feature_condition(self, ft):
         """adds a feature condition to it's collection"""
-        self.__feature_conditions.append(ft)
+        self.__available_conditions.append(ft)
 
     def __max_time_resolution(self, data):
         res = None
@@ -68,12 +69,14 @@ class extractor(object):
                         cond.next(t, v)
 
                 # generate new conditions
-                for cond_gen in self.__feature_conditions:
+                for cond_gen in self.__available_conditions:
                     new_cond = cond_gen()
                     if new_cond.start(t, v) and self.__may_start(new_cond):
                         self.__running_conditions.append(new_cond)
-        logging.debug("res: \n%s", pprint.pformat(res))
         return res
+
+    def __repr__(self):
+        return "<Extractor conditions=%s>" % (str(self.__available_conditions),)
 
 
 class TestExtractor(unittest.TestCase):
@@ -82,12 +85,22 @@ class TestExtractor(unittest.TestCase):
     def setUp(self):
         with open(args.datafile, "r") as f:
             self.data = eval("".join(f.readlines()))
-            logging.debug("self.data: \n%s", pprint.pformat(self.data))
-            self.extractor = extractor()
 
     def test_cond(self):
-        self.extractor.add_feature_condition(condition.dummy_condition)
-        res = self.extractor.extract(self.data)
+        e = extractor()
+        logging.debug(e)
+        e.add_feature_condition(condition.dummy_condition)
+        res = e.extract(self.data)
+        self.assertTrue(len(res[self.data.keys()[0]]) > 0)
+
+    def test_monotony(self):
+        import monotony
+        e = extractor()
+        logging.debug(e)
+        e.add_feature_condition(monotony.raising)
+        e.add_feature_condition(monotony.falling)
+        res = e.extract(self.data)
+        logging.debug("res: \n%s", pprint.pformat(res))
         self.assertTrue(len(res[self.data.keys()[0]]) > 0)
 
 

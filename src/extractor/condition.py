@@ -9,11 +9,11 @@ class dummy_condition(object):
 
     name = "dummy"
     can_overlay = True
+    value = 0
 
     def __init__(self, name=None):
         if name is not None:
             self.name = name
-        self.value = 0.0
         self.t0 = 0
         self.t1 = 0
 
@@ -23,8 +23,8 @@ class dummy_condition(object):
         return True
 
     def next(self, time, value):
-        """does calculations"""
-        self.value = 0.0
+        """will be called from step to step. please define calculations here"""
+        pass
 
     def end(self, time, value):
         """returns True if feature has to end here."""
