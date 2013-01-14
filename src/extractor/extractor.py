@@ -1,18 +1,10 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import pprint
 import logging
-import argparse
-import datetime
-import unittest
 from itertools import imap, izip
 
-import condition
 
-
-class extractor(object):
+class Extractor(object):
     """extracts features from datasets"""
     def __init__(self):
         self.__available_conditions = list()
@@ -23,6 +15,7 @@ class extractor(object):
         self.__available_conditions.append(ft)
 
     def __max_time_resolution(self, data):
+        """calculate smallest time scale"""
         res = None
         sorted_keys = sorted(data.keys())
         old_t = sorted_keys[-1]
@@ -35,6 +28,7 @@ class extractor(object):
         return res
 
     def __resample(self, data, resolution):
+        """interpolate data with a resolution"""
         res = dict()
         return res
 
@@ -77,25 +71,3 @@ class extractor(object):
 
     def __repr__(self):
         return "<Extractor conditions=%s>" % (str(self.__available_conditions),)
-
-
-if __name__ == "__main__":
-    app = argparse.ArgumentParser(description="General testings of Extractor")
-    app.add_argument("datafile",
-                     help="evaluable python file containing a data dict")
-    app.add_argument("unittest_args", nargs="*")
-    app.add_argument("--debug", action="store_true")
-    args = app.parse_args()
-
-    level = logging.INFO
-    if args.debug:
-        level = logging.DEBUG
-
-    logging.basicConfig(level=level)
-    logging.debug("bla")
-
-    path = os.path.realpath(os.path.dirname(__file__))
-    args.datafile = os.path.join(path, args.datafile)
-
-    sys.argv[1:] = args.unittest_args
-    unittest.main()

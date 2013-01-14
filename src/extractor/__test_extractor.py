@@ -5,9 +5,10 @@ import sys
 import pprint
 import logging
 import argparse
+import datetime  # eval() will use it
 import unittest
 
-from extractor import extractor
+from extractor import Extractor
 
 
 class TestExtractor(unittest.TestCase):
@@ -18,19 +19,19 @@ class TestExtractor(unittest.TestCase):
             self.data = eval("".join(f.readlines()))
 
     def test_cond(self):
-        import condition
-        e = extractor()
+        from plugins import Condition
+        e = Extractor()
         logging.debug(e)
-        e.add_feature_condition(condition.dummy_condition)
+        e.add_feature_condition(Condition)
         res = e.extract(self.data)
         self.assertTrue(len(res[self.data.keys()[0]]) > 0)
 
     def test_monotony(self):
-        import monotony
-        e = extractor()
+        from plugins import monotony
+        e = Extractor()
         logging.debug(e)
-        e.add_feature_condition(monotony.raising)
-        e.add_feature_condition(monotony.falling)
+        e.add_feature_condition(monotony.Raising)
+        e.add_feature_condition(monotony.Falling)
         res = e.extract(self.data)
         logging.debug("res: \n%s", pprint.pformat(res))
         self.assertTrue(len(res[self.data.keys()[0]]) > 0)
