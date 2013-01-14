@@ -6,4 +6,6 @@
 """
 
 
-__all__ = ["extractor", "condition", "monotony"]
+import glob
+
+__all__ = filter(lambda x: "__" not in x, glob.glob("*.py"))
