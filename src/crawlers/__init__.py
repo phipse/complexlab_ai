@@ -58,7 +58,7 @@ class API_crawler:
       if r.status_code == int(404): continue
       print "symbol: " + symbol 
       print "status: " + str(r.status_code)
-      storepath = "./dicts/"
+      storepath = "../../data/dicts/"
     
       test = tempfile.TemporaryFile()
       test.write(r.text)
@@ -70,7 +70,7 @@ class API_crawler:
       for line in test.readlines():
 	line = line.split(",")
 	dat = line[0]
-	value = line[4]
+	value = float(line[4])
 	dat = dat.split("-")
 	ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
 	dictusMongus.update( {ti:value} )
