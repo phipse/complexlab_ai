@@ -5,23 +5,30 @@
 
 """
 
-import imp
+import sys
 import glob
 import inspect
-from os.path import join, dirname, realpath
+import logging
+from os.path import join, dirname, basename
 
 
-def get_all_plugins(without=["condition"]):
+def get_all(whitelist=["condition"]):
     # TODO make this work somehow
     plugins = list()
-    for rel_path in glob.glob(join(dirname(__file__), "*.py")):
-        name = ".".join(rel_path[len("plugins/"):-3].split("/"))
-        path = dirname(realpath(rel_path))
-        if "__" in name or name in without:
-            print "ignored", name
+    directory = dirname(__file__)
+    sys.path.append(directory)
+    logging.debug(directory)
+    for rel_path in glob.glob(join(directory, "*.py")):
+        name = basename(rel_path)[:-3]
+        logging.debug("%s %s", name, whitelist)
+        if "__" in name or name not in whitelist:
+            logging.debug("ignored %s", name)
+            pass
         else:
-            print name, path
-            desc = imp.find_module(name, [path])
-            plugins += inspect.getmembers(imp.load_module(name, *desc),
-                                          inspect.isclass)
+            logging.debug("importing %s", name)
+            for name, class_ in inspect.getmembers(__import__(name),
+                                                   inspect.isclass):
+                plugins.append(class_)
+    sys.path.remove(directory)
+    logging.debug(plugins)
     return plugins

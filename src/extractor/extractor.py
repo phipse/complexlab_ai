@@ -71,3 +71,45 @@ class Extractor(object):
 
     def __repr__(self):
         return "<Extractor conditions=%s>" % (str(self.__available_conditions),)
+
+
+def __main():
+    import pprint
+    import logging
+    import argparse
+    import datetime  # eval will use it
+
+    import plugins
+
+
+    app = argparse.ArgumentParser(description="Command line interface to extractor")
+    app.add_argument("datafile", type=str,
+                     help="file containing python dict of data")
+    app.add_argument("plugins", type=str,
+                     help="will add all plugin content to extractor's feature conditions")
+    app.add_argument("--debug", action="store_true",
+                     help="highest verbose mode")
+    args = app.parse_args()
+    args.plugins = args.plugins.split(",")
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    all_plugins = plugins.get_all(whitelist=args.plugins)
+    if len(all_plugins) == 0:
+        logging.fatal("No plugins found: %s" % (args.plugins,))
+        return 1
+
+    e = Extractor()
+    for cond in all_plugins:
+        e.add_feature_condition(cond)
+    with open(args.datafile, "r") as f:
+        data = eval("".join(f.readlines()))
+        pprint.pprint(e.extract(data))
+    return 0
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(__main())
