@@ -12,9 +12,10 @@ class TestMonotony(unittest.TestCase):
         self.foo = [3., 1., 2., 3., 4., 5., 5., 4., 2., 0., 5., 9.]
         self.data = izip(count(), self.foo)
 
-    def test_raising(self):
+    def test_increasing(self):
         stat = list()
-        cond = monotony.Raising()
+        cond_gen = monotony.Increasing
+        cond = cond_gen()
         cond.start(-1, 0)
         old_val = -1
         for idx, val in self.data:
@@ -23,7 +24,7 @@ class TestMonotony(unittest.TestCase):
                 if not cond.is_stub(idx, val):
                     feat = cond.make_feature()
                     stat.append(feat)
-                cond = monotony.Raising()
+                cond = cond_gen()
                 cond.start(idx, val)
             else:
                 self.assertTrue(old_val <= val)

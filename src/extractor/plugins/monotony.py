@@ -3,8 +3,8 @@
 import condition
 
 
-class Raising(condition.Condition):
-    name = "raising"
+class Increasing(condition.Condition):
+    name = "increasing"
     can_overlay = False
 
     def can_start(self, time, value):
@@ -18,8 +18,8 @@ class Raising(condition.Condition):
         return value < self.value
 
 
-class Falling(Raising):
-    name = "falling"
+class Decreasing(Increasing):
+    name = "decreasing"
 
     def has_to_end(self, time, value):
         return value > self.value
