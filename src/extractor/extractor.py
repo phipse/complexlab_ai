@@ -47,6 +47,7 @@ class Extractor(object):
             #resampled = self.__resample(data, resolution)
             logging.debug("ID: %s", ID)
             sorted_times = sorted(data.keys())
+            self.__running_conditions = list()
             # iterate over all time, value pairs
             for t, v in izip(sorted_times,
                              imap(lambda k: data[k], sorted_times)):
