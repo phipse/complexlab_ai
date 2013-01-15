@@ -53,11 +53,12 @@ class Extractor(object):
                     if cond.end(t, v):
                         self.__running_conditions.remove(cond)
 
-                        feat = cond.make_feature()
-                        try:
-                            res[ID].append(feat)
-                        except KeyError:
-                            res[ID] = [feat]
+                        if not cond.is_stub(t, v):
+                            feat = cond.make_feature()
+                            try:
+                                res[ID].append(feat)
+                            except KeyError:
+                                res[ID] = [feat]
                     else:
                         # cond probably needs a step callback
                         cond.next(t, v)
@@ -65,8 +66,9 @@ class Extractor(object):
                 # generate new conditions
                 for cond_gen in self.__available_conditions:
                     new_cond = cond_gen()
-                    if new_cond.start(t, v) and self.__may_start(new_cond):
-                        self.__running_conditions.append(new_cond)
+                    if self.__may_start(new_cond):
+                        if new_cond.start(t, v):
+                            self.__running_conditions.append(new_cond)
         return res
 
     def __repr__(self):
@@ -93,9 +95,9 @@ def __main():
     args.plugins = args.plugins.split(",")
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(format="%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s", level=logging.DEBUG)
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(format="%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s", level=logging.INFO)
 
     all_plugins = plugins.get_all(whitelist=args.plugins)
     if len(all_plugins) == 0:

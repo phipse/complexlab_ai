@@ -4,7 +4,7 @@
 
 """
 
-__all__ = ["Condition"]
+import logging
 
 
 class Condition(object):
@@ -19,30 +19,47 @@ class Condition(object):
             self.name = name
         self.t0 = 0
         self.t1 = 0
+        self.t_prev = 0
 
-    def __start(self, time, value):
+    def can_start(self, time, value):
+        """implementors may override this"""
         return True
 
-    def __next(self, time, value):
+    def do_next(self, time, value):
+        """implementors may override this"""
         return True
 
-    def __end(self, time, value):
+    def has_to_end(self, time, value):
+        """implementors may override this"""
         return True
 
     def start(self, time, value):
         """returns True, if feature is allowed to start here."""
         self.t0 = time
-        return self.__start(time, value)
+        self.t_prev = time
+        self.t1 = time
+        success = self.can_start(time, value)
+        logging.debug("%s: %s %s %s", self, success, time, value)
+        return success
 
     def next(self, time, value):
-        """will be called from step to step. please define calculations here"""
-        return self.__next(time, value)
+        """will be called if not ending."""
+        self.t_prev = time
+        success = self.do_next(time, value)
+        return success
 
     def end(self, time, value):
         """returns True if feature has to end here."""
-        self.t1 = time
-        return self.__end(time, value)
+        success = self.has_to_end(time, value)
+        logging.debug("%s: %s %s %s", self, success, time, value)
+        self.t1 = self.t_prev
+        return success
 
     def make_feature(self):
         """constructs a feature description"""
-        return (self.name, self.t0, self.t1, self.value)
+        res = (self.name, self.t0, self.t1, self.value) 
+        logging.debug("%s", res)
+        return res
+
+    def is_stub(self, time, value):
+        return self.t0 == time

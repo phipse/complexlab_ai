@@ -5,26 +5,21 @@ import condition
 
 class Raising(condition.Condition):
     name = "raising"
-    t0 = t1 = None
-    value = 0
     can_overlay = False
 
-    def start(self, time, value):
+    def can_start(self, time, value):
         self.value = value
-        self.t0 = time
         return True
 
-    def next(self, time, value):
+    def do_next(self, time, value):
         self.value = value
 
-    def end(self, time, value):
-        self.t1 = time
-        return value >= self.value
+    def has_to_end(self, time, value):
+        return value < self.value
 
 
 class Falling(Raising):
     name = "falling"
 
-    def end(self, time, value):
-        self.t1 = time
-        return value <= self.value
+    def has_to_end(self, time, value):
+        return value > self.value
