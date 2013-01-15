@@ -39,7 +39,8 @@ class Condition(object):
         self.t_prev = time
         self.t1 = time
         success = self.can_start(time, value)
-        logging.debug("%s: %s %s %s", self, success, time, value)
+        logging.debug("%s: %s (%s to %s) (new=%s old=%s)",
+                      self, success, self.t0, time, value, self.value)
         return success
 
     def next(self, time, value):
@@ -48,10 +49,11 @@ class Condition(object):
         success = self.do_next(time, value)
         return success
 
-    def end(self, time, value):
+    def end(self, time, value, force=False):
         """returns True if feature has to end here."""
-        success = self.has_to_end(time, value)
-        logging.debug("%s: %s %s %s", self, success, time, value)
+        success = force or self.has_to_end(time, value)
+        logging.debug("%s: %s (%s to %s) (new=%s old=%s)",
+                      self, success, self.t0, time, value, self.value)
         self.t1 = self.t_prev
         return success
 
@@ -62,4 +64,4 @@ class Condition(object):
         return res
 
     def is_stub(self, time, value):
-        return self.t0 == time
+        return self.t0 == self.t_prev

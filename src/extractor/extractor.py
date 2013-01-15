@@ -2,6 +2,7 @@
 
 import logging
 from itertools import imap, izip
+from collections import defaultdict
 
 
 class Extractor(object):
@@ -40,25 +41,24 @@ class Extractor(object):
 
     def extract(self, data_dict):
         """extracts features from data dictionary"""
-        res = dict()
+        res = defaultdict(list)
         for ID, data in data_dict.items():
             #resolution = self.__max_time_resolution(data)
             #resampled = self.__resample(data, resolution)
             logging.debug("ID: %s", ID)
             sorted_times = sorted(data.keys())
             # iterate over all time, value pairs
-            for t, v in izip(sorted_times, imap(lambda k: data[k], sorted_times)):
-                # check whether started conditions ended and store them as features
+            for t, v in izip(sorted_times,
+                             imap(lambda k: data[k], sorted_times)):
+                # check whether started conditions ended and store them as
+                # features
                 for cond in self.__running_conditions:
                     if cond.end(t, v):
                         self.__running_conditions.remove(cond)
 
                         if not cond.is_stub(t, v):
                             feat = cond.make_feature()
-                            try:
-                                res[ID].append(feat)
-                            except KeyError:
-                                res[ID] = [feat]
+                            res[ID].append(feat)
                     else:
                         # cond probably needs a step callback
                         cond.next(t, v)
@@ -69,10 +69,18 @@ class Extractor(object):
                     if self.__may_start(new_cond):
                         if new_cond.start(t, v):
                             self.__running_conditions.append(new_cond)
-        return res
+            # add the final conditions that are still fulfilled
+            for cond in self.__running_conditions:
+                t, v = sorted_times[-1], data[sorted_times[-1]]
+                cond.end(t, v)
+                if not cond.is_stub(t, v):
+                    feat = cond.make_feature()
+                    res[ID].append(feat)
+        return dict(res)
 
     def __repr__(self):
-        return "<Extractor conditions=%s>" % (str(self.__available_conditions),)
+        return "<Extractor conditions=%s>" % \
+               (str(self.__available_conditions),)
 
 
 def __main():
@@ -83,21 +91,23 @@ def __main():
 
     import plugins
 
-
-    app = argparse.ArgumentParser(description="Command line interface to extractor")
+    app = argparse.ArgumentParser(description="Command line interface to \
+                                              extractor")
     app.add_argument("datafile", type=str,
                      help="file containing python dict of data")
     app.add_argument("plugins", type=str,
-                     help="will add all plugin content to extractor's feature conditions")
+                     help="will add all plugin content to extractor's feature \
+                     conditions")
     app.add_argument("--debug", action="store_true",
                      help="highest verbose mode")
     args = app.parse_args()
     args.plugins = args.plugins.split(",")
 
+    FORMAT = "%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s"
     if args.debug:
-        logging.basicConfig(format="%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s", level=logging.DEBUG)
+        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
     else:
-        logging.basicConfig(format="%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s", level=logging.INFO)
+        logging.basicConfig(format=FORMAT, level=logging.INFO)
 
     all_plugins = plugins.get_all(whitelist=args.plugins)
     if len(all_plugins) == 0:
