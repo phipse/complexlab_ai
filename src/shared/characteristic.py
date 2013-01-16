@@ -16,7 +16,7 @@ class Characteristic:
             if feature.value_in_range(self.d.min, self.d.max): return 1.0
             elif feature.value < self.d.min: diff = self.d.min - feature.value
             else: diff = feature.value - self.d.max
-            return diff #TODO
+            # TODO return diff / whole_range_for_all_characteristics
         else:
             if self.d.value == feature.value: return 1.0
         return 0
