@@ -55,7 +55,7 @@ class API_crawler:
     cnt = 0
     for symbol in self.requestAddresses:
       r = requests.get(symbol)
-      if r.status_code == int(404): continue
+      if r.status_code != int(200): continue
       print "symbol: " + symbol 
       print "status: " + str(r.status_code)
       storepath = "../../data/dicts/"
