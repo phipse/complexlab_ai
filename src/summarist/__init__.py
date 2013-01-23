@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-class Summarizer:
+class Summarist:
     def __init__(self):
         connection = MongoClient()
         self.db = connection.complexlab_ai
