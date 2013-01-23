@@ -17,17 +17,18 @@ class TestExtractor(unittest.TestCase):
     def setUp(self):
         with open(args.datafile, "r") as f:
             self.data = eval("".join(f.readlines()))
+            logging.debug(self.data)
 
     def test_cond(self):
-        from plugins import Condition
+        from classifiers import Classifier
         e = Extractor()
         logging.debug(e)
-        e.add_feature_condition(Condition)
+        e.add_feature_condition(Classifier)
         res = e.extract(self.data)
         self.assertTrue(len(res[self.data.keys()[0]]) > 0)
 
     def test_monotony(self):
-        from plugins import monotony
+        from classifiers import monotony
         e = Extractor()
         logging.debug(e)
         e.add_feature_condition(monotony.Raising)
@@ -41,18 +42,14 @@ if __name__ == "__main__":
     app = argparse.ArgumentParser(description="General testings of Extractor")
     app.add_argument("datafile",
                      help="evaluable python file containing a data dict")
+    app.add_argument("-d", "--debug", action="store_true")
     app.add_argument("unittest_args", nargs="*")
-    app.add_argument("--debug", action="store_true")
     args = app.parse_args()
 
-    level = logging.INFO
-    if args.debug:
-        level = logging.DEBUG
-
-    logging.basicConfig(level=level)
-    logging.debug("bla")
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
     path = os.path.realpath(os.path.dirname(__file__))
+    logging.debug(path)
     args.datafile = os.path.join(path, args.datafile)
 
     sys.argv[1:] = args.unittest_args

@@ -7,7 +7,7 @@
 import logging
 
 
-class Condition(object):
+class Classifier(object):
     """super class for feature conditions. fits everywhere."""
 
     name = "dummy"
@@ -65,3 +65,4 @@ class Condition(object):
 
     def is_stub(self, time, value):
         return self.t0 == self.t_prev
+

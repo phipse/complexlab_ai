@@ -1,40 +1,43 @@
 #!/usr/bin/env python
 
+"""Extactor module
+
+(c) Peter Schwede
+"""
+
 import logging
+from os.path import dirname, join
 from itertools import imap, izip
 from collections import defaultdict
+
+
+def max_time_resolution(data):
+    """calculate smallest time scale"""
+    res = None
+    sorted_keys = sorted(data.keys())
+    old_date = sorted_keys[-1]
+    for date in sorted_keys:
+        if res is None:
+            res = date - old_date
+        else:
+            res = min(res, date - old_date)
+        old_date = date
+    return res
 
 
 class Extractor(object):
     """extracts features from datasets"""
     def __init__(self):
-        self.__available_conditions = list()
-        self.__running_conditions = list()
+        self.__available_classifiers = list()
+        self.__running_classifiers = list()
 
-    def add_feature_condition(self, ft):
-        """adds a feature condition to it's collection"""
-        self.__available_conditions.append(ft)
-
-    def __max_time_resolution(self, data):
-        """calculate smallest time scale"""
-        res = None
-        sorted_keys = sorted(data.keys())
-        old_t = sorted_keys[-1]
-        for t in sorted_keys:
-            if res is None:
-                res = t - old_t
-            else:
-                res = min(res, t - old_t)
-            old_t = t
-        return res
-
-    def __resample(self, data, resolution):
-        """interpolate data with a resolution"""
-        res = dict()
-        return res
+    def add_feature_classifier(self, feature_classifier):
+        """adds a feature classifier to it's collection"""
+        self.__available_classifiers.append(feature_classifier)
 
     def __may_start(self, this):
-        for other in self.__running_conditions:
+        """returns whether a classifier is blocked by other instances"""
+        for other in self.__running_classifiers:
             if other.name == this.name and not this.can_overlay:
                 return False
         return True
@@ -42,87 +45,84 @@ class Extractor(object):
     def extract(self, data_dict):
         """extracts features from data dictionary"""
         res = defaultdict(list)
-        for ID, data in data_dict.items():
-            #resolution = self.__max_time_resolution(data)
-            #resampled = self.__resample(data, resolution)
-            logging.debug("ID: %s", ID)
+        for iden, data in data_dict.items():
+            #resolution = max_time_resolution(data)
+            #resampled = resample(data, resolution)
+            logging.debug("iden: %s", iden)
             sorted_times = sorted(data.keys())
-            self.__running_conditions = list()
+            self.__running_classifiers = list()
             # iterate over all time, value pairs
-            for t, v in izip(sorted_times,
-                             imap(lambda k: data[k], sorted_times)):
-                # check whether started conditions ended and store them as
+            for time, value in izip(sorted_times,
+                                    imap(lambda k: data[k], sorted_times)):
+                # check whether started classifiers ended and store them as
                 # features
-                for cond in self.__running_conditions:
-                    if cond.end(t, v):
-                        self.__running_conditions.remove(cond)
+                for classifier in self.__running_classifiers:
+                    if classifier.end(time, value):
+                        self.__running_classifiers.remove(classifier)
 
-                        if not cond.is_stub(t, v):
-                            feat = cond.make_feature()
-                            res[ID].append(feat)
+                        if not classifier.is_stub(time, value):
+                            feat = classifier.make_feature()
+                            res[iden].append(feat)
                     else:
-                        # cond probably needs a step callback
-                        cond.next(t, v)
+                        # classifier probably needs a step callback
+                        classifier.next(time, value)
 
-                # generate new conditions
-                for cond_gen in self.__available_conditions:
-                    new_cond = cond_gen()
-                    if self.__may_start(new_cond):
-                        if new_cond.start(t, v):
-                            self.__running_conditions.append(new_cond)
-            # add the final conditions that are still fulfilled
-            for cond in self.__running_conditions:
-                t, v = sorted_times[-1], data[sorted_times[-1]]
-                cond.end(t, v)
-                if not cond.is_stub(t, v):
-                    feat = cond.make_feature()
-                    res[ID].append(feat)
+                # generate new classifiers
+                for classifier_gen in self.__available_classifiers:
+                    new_classifier = classifier_gen()
+                    if self.__may_start(new_classifier):
+                        if new_classifier.start(time, value):
+                            self.__running_classifiers.append(new_classifier)
+            # add the final classifiers that are still fulfilled
+            for classifier in self.__running_classifiers:
+                time, value = sorted_times[-1], data[sorted_times[-1]]
+                classifier.end(time, value)
+                if not classifier.is_stub(time, value):
+                    feat = classifier.make_feature()
+                    res[iden].append(feat)
         return dict(res)
 
     def __repr__(self):
-        return "<Extractor conditions=%s>" % \
-               (str(self.__available_conditions),)
+        return "<Extractor classifiers=%s>" % \
+               (str(self.__available_classifiers),)
 
 
-def __main():
+def __cli_interface():
+    """cli interface"""
     import pprint
-    import logging
     import argparse
     import datetime  # eval will use it
 
-    import plugins
+    import classifiers
 
     app = argparse.ArgumentParser(description="Command line interface to \
                                               extractor")
     app.add_argument("datafile", type=str,
                      help="file containing python dict of data")
-    app.add_argument("plugins", type=str,
+    app.add_argument("classifiers", type=str,
                      help="will add all plugin content to extractor's feature \
-                     conditions")
-    app.add_argument("--debug", action="store_true",
+                     classifiers")
+    app.add_argument("-d", "--debug", action="store_true",
                      help="highest verbose mode")
     args = app.parse_args()
-    args.plugins = args.plugins.split(",")
+    args.classifiers = args.classifiers.split(",")
 
-    FORMAT = "%(levelname)-8s %(module)-8s %(funcName)-8s %(message)s"
-    if args.debug:
-        logging.basicConfig(format=FORMAT, level=logging.DEBUG)
-    else:
-        logging.basicConfig(format=FORMAT, level=logging.INFO)
+    fstring = "%(levelname)-8s %(module)-8s:%(lineno)s %(funcName)-8s %(message)s"
+    logging.basicConfig(format=fstring, level=logging.DEBUG if args.debug else logging.INFO)
 
-    all_plugins = plugins.get_all(whitelist=args.plugins)
-    if len(all_plugins) == 0:
-        logging.fatal("No plugins found: %s" % (args.plugins,))
+    all_classifiers = classifiers.get_all(join(dirname(__file__), "classifiers"), whitelist=args.classifiers)
+    if len(all_classifiers) == 0:
+        logging.fatal("No classifiers found: %s", args.classifiers)
         return 1
 
-    e = Extractor()
-    for cond in all_plugins:
-        e.add_feature_condition(cond)
-    with open(args.datafile, "r") as f:
-        data = eval("".join(f.readlines()))
-        pprint.pprint(e.extract(data))
+    extr = Extractor()
+    for classifier in all_classifiers:
+        extr.add_feature_classifier(classifier)
+    with open(args.datafile, "r") as data_file:
+        data = eval("".join(data_file.readlines()))
+        pprint.pprint(extr.extract(data))
     return 0
 
 if __name__ == "__main__":
     import sys
-    sys.exit(__main())
+    sys.exit(__cli_interface())
