@@ -27,14 +27,11 @@ class Grouper:
       # -> simple
 
 #  ---------------------------
-  # while there is data:
-  # aquire dataset from the DB 
-  # for data in dataset: extract the featureset
-  # if featuresetgroup doesn't exist
-  #   open new group
-  # else:
-  #   get group
-  # add data to group
+  # for each char1 in db which has one_element
+  #   for each char2 in db which has max_elements
+  #	create new char1_charMax and intersect char1.val charMax.val
+  # repeat until max_elements == Maximum one element characteristics
+
 
   def cleanup(self):
     # if group has not enough members 
