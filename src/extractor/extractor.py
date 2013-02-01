@@ -87,11 +87,19 @@ class Extractor(object):
                (str(self.__available_classifiers),)
 
 
+def from_file(self, filename):
+    """read data from valid python file"""
+    import datetime  # eval will use it
+    data = {}
+    with open(filename, "r") as data_file:
+        data = eval("".join(data_file.readlines()))
+    return self.extract(data)
+
+
 def __cli_interface():
     """cli interface"""
     import pprint
     import argparse
-    import datetime  # eval will use it
 
     import classifiers
 
@@ -107,10 +115,13 @@ def __cli_interface():
     args = app.parse_args()
     args.classifiers = args.classifiers.split(",")
 
-    fstring = "%(levelname)-8s %(module)-8s:%(lineno)s %(funcName)-8s %(message)s"
-    logging.basicConfig(format=fstring, level=logging.DEBUG if args.debug else logging.INFO)
+    fstring = "%(levelname)-8s %(module)-8s:%(lineno)s %(funcName)-8s \
+              %(message)s"
+    loglvl = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(format=fstring, level=loglvl)
 
-    all_classifiers = classifiers.get_all(join(dirname(__file__), "classifiers"), whitelist=args.classifiers)
+    plug_dir = join(dirname(__file__), "classifiers")
+    all_classifiers = classifiers.get_all(plug_dir, whitelist=args.classifiers)
     if len(all_classifiers) == 0:
         logging.fatal("No classifiers found: %s", args.classifiers)
         return 1
@@ -118,9 +129,8 @@ def __cli_interface():
     extr = Extractor()
     for classifier in all_classifiers:
         extr.add_feature_classifier(classifier)
-    with open(args.datafile, "r") as data_file:
-        data = eval("".join(data_file.readlines()))
-        pprint.pprint(extr.extract(data))
+
+    pprint.pprint(from_file(args.datafile))
     return 0
 
 if __name__ == "__main__":
