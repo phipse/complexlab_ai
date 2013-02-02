@@ -3,6 +3,7 @@
 """Extactor module
 
 (c) Peter Schwede
+
 """
 
 import logging
@@ -82,18 +83,17 @@ class Extractor(object):
                     res[iden].append(feat)
         return dict(res)
 
+    def from_file(self, filename):
+        """read data from valid python file"""
+        import datetime  # eval will use it
+        data = {}
+        with open(filename, "r") as data_file:
+            data = eval("".join(data_file.readlines()))
+        return self.extract(data)
+
     def __repr__(self):
         return "<Extractor classifiers=%s>" % \
                (str(self.__available_classifiers),)
-
-
-def from_file(self, filename):
-    """read data from valid python file"""
-    import datetime  # eval will use it
-    data = {}
-    with open(filename, "r") as data_file:
-        data = eval("".join(data_file.readlines()))
-    return self.extract(data)
 
 
 def __cli_interface():
@@ -115,8 +115,8 @@ def __cli_interface():
     args = app.parse_args()
     args.classifiers = args.classifiers.split(",")
 
-    fstring = "%(levelname)-8s %(module)-8s:%(lineno)s %(funcName)-8s \
-              %(message)s"
+    fstring = "%(levelname)s %(module)s:%(lineno)s %(funcName)s "\
+              + "%(message)s"
     loglvl = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(format=fstring, level=loglvl)
 
@@ -130,7 +130,7 @@ def __cli_interface():
     for classifier in all_classifiers:
         extr.add_feature_classifier(classifier)
 
-    pprint.pprint(from_file(args.datafile))
+    pprint.pprint(extr.from_file(args.datafile))
     return 0
 
 if __name__ == "__main__":
