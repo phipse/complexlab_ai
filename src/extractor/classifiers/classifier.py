@@ -17,9 +17,9 @@ class Classifier(object):
     def __init__(self, name=None):
         if name is not None:
             self.name = name
-        self.t0 = 0
-        self.t1 = 0
-        self.t_prev = 0
+        self.__t0 = 0
+        self.__t1 = 0
+        self.__t_prev = 0
 
     def can_start(self, time, value):
         """implementors may override this"""
@@ -35,34 +35,38 @@ class Classifier(object):
 
     def start(self, time, value):
         """returns True, if feature is allowed to start here."""
-        self.t0 = time
-        self.t_prev = time
-        self.t1 = time
+        self.__t0 = time
+        self.__t_prev = time
+        self.__t1 = time
         success = self.can_start(time, value)
-        logging.debug("%s: %s (%s to %s) (new=%s old=%s)",
-                      self, success, self.t0, time, value, self.value)
+        logging.debug("%s: %s %s", self, success, value,)
         return success
 
     def next(self, time, value):
         """will be called if not ending."""
-        self.t_prev = time
+        self.__t_prev = time
         success = self.do_next(time, value)
         return success
 
     def end(self, time, value, force=False):
         """returns True if feature has to end here."""
+        self.__t1 = self.__t_prev
         success = force or self.has_to_end(time, value)
-        logging.debug("%s: %s (%s to %s) (new=%s old=%s)",
-                      self, success, self.t0, time, value, self.value)
-        self.t1 = self.t_prev
+        logging.debug("%s: %s (o,n=%s,%s)", self, success, self.value,
+                      value)
         return success
 
     def make_feature(self):
         """constructs a feature description"""
-        res = (self.name, self.t0, self.t1, self.value) 
-        logging.debug("%s", res)
+        res = (self.name, self.__t0, self.__t1, self.value) 
         return res
 
     def is_stub(self, time, value):
-        return self.t0 == self.t_prev
+        return self.__t0 == self.__t_prev
+
+    def __len__(self):
+        return self.__t1 - self.__t0
+
+    def __repr__(self):
+        return "<%s t0=%s, t1=%s, val=%f>" % (self.name, self.__t0, self.__t1, self.value,)
 
