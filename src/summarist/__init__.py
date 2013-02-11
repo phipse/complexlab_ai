@@ -15,15 +15,13 @@ class Summarist:
                 if(meta == None):
                     meta = {"_id": feature.name, "id_ranges" : default_id_ranges} # using _id because it is indexed by default
                 for i in range(0, len(feature.id)-1):
-                    if(default_id_ranges[i] == None):
-                        # update meta.ranges[i]
-                        if meta.id_ranges[i] == None:
-                            meta.id_ranges[i] == {"min": feature.id[i], "max": feature.id[i]}
-                        else:
-                            if feature.id[i] < meta.id_ranges[i]:
-                                meta.id_ranges[i].min = feature.id[i]
-                            elif feature.id[i] > meta.id_ranges[i]:
-                                meta.id_ranges[i].max = feature.id[i]
+                    if meta.id_ranges[i] == None: # create meta object for feature-name
+                        meta.id_ranges[i] == [feature.id[i], feature.id[i]] # [min, max]
+                    elif(default_id_ranges[i] == None): # only update meta object if not specified by user (via feature-config)
+                        if feature.id[i] < meta.id_ranges[i]: # update min?
+                            meta.id_ranges[i][0] = feature.id[i]
+                        elif feature.id[i] > meta.id_ranges[i]: # update max?
+                            meta.id_ranges[i][1] = feature.id[i]
                 db.meta.save(meta)
 
                 # aggregate to characteristics, if possible async
