@@ -11,14 +11,14 @@ class API_crawler:
   first = True
   requestAddresses = list()
 
-  def __init__(self): 
+  def __init__(self, syms): 
+    self.symfile = file( syms, "r" )
     self.initIdentifier()
  
 
   def initIdentifier(self):
     if self.first:
-      symfile = file("NASDAQ_syms", "r")
-      for line in symfile.readlines():
+      for line in self.symfile.readlines():
 	self.identifier.append(line.split("\n")[0])
       self.first = False
 
@@ -93,5 +93,5 @@ class API_crawler:
 
 
 if __name__ == "__main__":
-  crawl = API_crawler()
+  crawl = API_crawler( "NASDAQ_syms" )
   crawl.run()
