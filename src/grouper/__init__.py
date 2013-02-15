@@ -4,13 +4,12 @@ from pymongo import MongoClient
 
 class Grouper:
   first = True
-  db
-  charactDB
-
-  def init(self):
+  
+  def __init__(self):
+  # open db connection, read collection and copy it
     connection = MongoClient()
     self.db = connection.ai
-    # open db connection, read collection and copy it
+    self.charactDB = self.db.features
     for x in self.db.Characteristics.find():
       self.charactDB.insert(x)
   
@@ -30,10 +29,11 @@ class Grouper:
 
 #  ---------------------------
 # mongo shit
-    for x in list(10):
+    for x in list([1,10]):
       max_element = x;
-      charactDB = charactDB.map_reduce( self.mapfunc(max_element),
-	  slef.reducefunc(), self.intersect() );
+      self.charactDB = self.charactDB.map_reduce( self.mapfunc(x), 
+	  self.reducefunc(),""" {  out: { reduce: "characteristicGroups" },
+	    finalize: self.intersect()  }""", max_element );
 
   # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
@@ -70,8 +70,8 @@ class Grouper:
       """
 
 
-  def intesect(self):
-    return """intersectFunc = function( a, b ) {
+  def intersect(self):
+    return """intersect = function( a, b ) {
 		a.filter( function(x) { return b.indexOf(x) >= 0; ) });
 	      }"""
   
@@ -81,10 +81,10 @@ class Grouper:
     #	mark as uninteresting
 
   def run(self):
-    if first: 
-      init()
-      first = False
-    grouping()
+    if self.first: 
+      self.__init__()
+      self.first = False
+    self.grouping()
 
 
 
