@@ -13,36 +13,9 @@ from classifiers import absolute_monotony
 from classifiers import relative_monotony
 from os import path, makedirs, remove
 
-if __name__ == "__main__":
-  nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
-  nyseCrawler = API_crawler( "../crawlers/NYSE_syms" )
-  crawlerList = list()
-  crawlerList.append(nasdaqCrawler)
-  crawlerList.append(nyseCrawler)
-  print "craweler init done"
 
-  
-  # maybe thread this? up until now, I store results on disk; caching? -- phi
-  nasdaqCrawler.run()
-  nyseCrawler.run()
-
-
-# init and start feature extractor
-  featureExtractor = Extractor()
-
-# FEATURE LIST:
-
-  #featureExtractor.add_feature_classifier(monotony.Increasing)
-  #featureExtractor.add_feature_classifier(monotony.Decreasing)
-  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteIncreasing)
-  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteDecreasing)
-  #featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
-  #featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
-
-# data storage paths
-  extractDataPath = "../../data/extraction/"
-
-# API-Data-Stream to extractor
+def extractorStream( extractDataPath, crawlerList ):
+  """ Stream API data to extractor """
   for crawler in crawlerList:
     while True:
       try:
@@ -65,5 +38,38 @@ if __name__ == "__main__":
 	f.flush()
 	f.close()
 
+
+
+
+
+if __name__ == "__main__":
+  nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
+  nyseCrawler = API_crawler( "../crawlers/NYSE_syms" )
+  crawlerList = list()
+  crawlerList.append(nasdaqCrawler)
+  crawlerList.append(nyseCrawler)
+  print "crawler init done"
+
+  
+  # maybe thread this? up until now, I store results on disk; caching? -- phi
+  nasdaqCrawler.run()
+  nyseCrawler.run()
+
+
+# init and start feature extractor
+  featureExtractor = Extractor()
+
+# FEATURE LIST:
+
+  #featureExtractor.add_feature_classifier(monotony.Increasing)
+  #featureExtractor.add_feature_classifier(monotony.Decreasing)
+  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteIncreasing)
+  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteDecreasing)
+  #featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
+  #featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
+
+# data storage paths
+  extractDataPath = "../../data/extraction/"
+  extractorStream( extractDataPath, crawlerList )
 
   print "done"
