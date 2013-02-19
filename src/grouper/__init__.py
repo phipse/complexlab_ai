@@ -29,7 +29,7 @@ class Grouper:
 
 #  ---------------------------
 # mongo shit
-    for x in list([1,10]):
+    for x in range(10):
       max_element = x;
       self.charactDB = self.charactDB.map_reduce( self.mapfunc(x), 
 	  self.reducefunc(),""" {  out: { reduce: "characteristicGroups" },
