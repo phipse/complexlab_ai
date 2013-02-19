@@ -7,7 +7,10 @@
 # ----------------------------------------------------------------------------
 
 from crawlers import API_crawler
-from extractor import Extractor 
+from extractor import Extractor
+from classifiers import monotony
+from classifiers import absolute_monotony
+from classifiers import relative_monotony
 
 if __name__ == "__main__":
   nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
@@ -19,12 +22,26 @@ if __name__ == "__main__":
   
   # maybe thread this? up until now, I store results on disk; caching? -- phi
   nasdaqCrawler.run()
-  nyseCrawler.run()
-  lseCrawler.run()
+#  nyseCrawler.run()
+#  lseCrawler.run()
 
 
   # init and start feature extractor
 
-#  featureExtractor = Extractor(
+  featureExtractor = Extractor()
+#  featureExtractor.add_feature_classifier(monotony.Increasing)
+#  featureExtractor.add_feature_classifier(monotony.Decreasing)
+  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteIncreasing)
+  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteDecreasing)
+#  featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
+#  featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
 
+  while True:
+    try:
+      extractResult = featureExtractor.from_filehandle( nasdaqCrawler.pullDataSet() )
+    except StopIteration:
+      print "StopIteration caught" 
+      break
+    print extractResult
 
+  print "done"
