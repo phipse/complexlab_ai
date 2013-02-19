@@ -11,6 +11,7 @@ from extractor import Extractor
 from classifiers import monotony
 from classifiers import absolute_monotony
 from classifiers import relative_monotony
+from os import path, makedirs, remove
 
 if __name__ == "__main__":
   nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
@@ -38,6 +39,9 @@ if __name__ == "__main__":
   #featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
   #featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
 
+# data storage paths
+  extractDataPath = "../../data/extraction/"
+
 # API-Data-Stream to extractor
   for crawler in crawlerList:
     while True:
@@ -48,7 +52,18 @@ if __name__ == "__main__":
 	break
       else:
 	# store extractResult in fs
-	print extractResult
+	extFileName = str(extractResult.keys())
+	extFileName = extFileName[2:len(extFileName)-2]
+	extFileName = extractDataPath + extFileName;
+	#print extFileName 
+	if not path.exists(extractDataPath):
+	  makedirs(extractDataPath) 
+	if path.isfile(extFileName):
+	  remove(extFileName)
+	f = file( extFileName, "w+" )
+	f.write( str(extractResult) )
+	f.flush()
+	f.close()
 
 
   print "done"
