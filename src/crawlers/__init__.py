@@ -49,7 +49,7 @@ class API_crawler(object):
       buildString = startString + "s=" + self.setID();
       buildString += self.setTimeFrame()
       self.__requestAddresses.append(buildString)
-    print len(self.__requestAddresses)
+    #print len(self.__requestAddresses)
     self.requestCSV()
 
   
