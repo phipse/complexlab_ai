@@ -5,24 +5,24 @@ import tempfile
 import requests
 import json
 
-class API_crawler:
-  index = 0
-  identifier = list()  
-  first = True
-  requestAddresses = list()
-  fileNames = list()
-  fileIterator = iter(fileNames)
+class API_crawler(object):
 
   def __init__(self, syms): 
-    self.symfile = file( syms, "r" )
+    self.__index = 0
+    self.__identifier = list()  
+    self.__first = True
+    self.__requestAddresses = list()
+    self.__fileNames = list()
+    self.__fileIterator = iter(self.__fileNames)
+    self.__symfile = file( syms, "r" )
     self.initIdentifier()
  
 
   def initIdentifier(self):
-    if self.first:
-      for line in self.symfile.readlines():
-	self.identifier.append(line.split("\n")[0])
-      self.first = False
+    if self.__first:
+      for line in self.__symfile.readlines():
+	self.__identifier.append(line.split("\n")[0])
+      self.__first = False
 
 
   def setTimeFrame(self):
@@ -36,27 +36,27 @@ class API_crawler:
 
 
   def setID(self):
-    ret = self.identifier[self.index]
-    self.index = self.index+1
-    if self.index > len(self.identifier):
-      self.index = 0
+    ret = self.__identifier[self.__index]
+    self.__index = self.__index+1
+    if self.__index > len(self.__identifier):
+      self.__index = 0
     return ret
 
 
   def run(self):
     startString = "http://ichart.finance.yahoo.com/table.csv?"
-    for x in range(len(self.identifier)):
+    for x in range(len(self.__identifier)):
       buildString = startString + "s=" + self.setID();
       buildString += self.setTimeFrame()
-      self.requestAddresses.append(buildString)
-#    print len(self.requestAddresses)
+      self.__requestAddresses.append(buildString)
+    print len(self.__requestAddresses)
     self.requestCSV()
 
   
   
   def requestCSV(self):
     cnt = 0
-    for symbol in self.requestAddresses:
+    for symbol in self.__requestAddresses:
       r = requests.get(symbol)
       if r.status_code != int(200): continue
       print "symbol: " + symbol 
@@ -78,8 +78,8 @@ class API_crawler:
 	ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
 	dictusMongus.update( {ti:value} )
 
-      nojs = { self.identifier[cnt] : dictusMongus}
-      filename = storepath + self.identifier[cnt]
+      nojs = { self.__identifier[cnt] : dictusMongus}
+      filename = storepath + self.__identifier[cnt]
       if not path.exists(storepath):
 	os.makedirs(storepath) 
       if path.isfile(filename):
@@ -88,7 +88,7 @@ class API_crawler:
       f.write( str( nojs))
       f.flush()
       # append new file to the list of all filenames
-      self.fileNames.append(filename)
+      self.__fileNames.append(filename)
       f.close()
       cnt += 1
       if cnt == 10:
@@ -97,7 +97,7 @@ class API_crawler:
 
   
   def pullDataSet(self):
-    return file( self.fileIterator.next(), "r" )
+    return file( self.__fileIterator.next(), "r" )
     
 
 
