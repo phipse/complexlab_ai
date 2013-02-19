@@ -10,6 +10,8 @@ class API_crawler:
   identifier = list()  
   first = True
   requestAddresses = list()
+  fileNames = list()
+  fileIterator = iter(fileNames)
 
   def __init__(self, syms): 
     self.symfile = file( syms, "r" )
@@ -49,6 +51,7 @@ class API_crawler:
       self.requestAddresses.append(buildString)
 #    print len(self.requestAddresses)
     self.requestCSV()
+
   
   
   def requestCSV(self):
@@ -84,9 +87,19 @@ class API_crawler:
       f = file(filename, "w+")
       f.write( str( nojs))
       f.flush()
+      # append new file to the list of all filenames
+      self.fileNames.append(filename)
       f.close()
       cnt += 1
+      if cnt == 10:
+	break
     print "done"
+
+  
+  def pullDataSet(self):
+    return file( self.fileIterator.next(), "r" )
+    
+
 
 
 
@@ -95,3 +108,6 @@ class API_crawler:
 if __name__ == "__main__":
   crawl = API_crawler( "NASDAQ_syms" )
   crawl.run()
+  for i in range(10):
+    crawl.pullDataSet()
+
