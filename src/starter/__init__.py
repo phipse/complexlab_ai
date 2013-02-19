@@ -15,33 +15,40 @@ from classifiers import relative_monotony
 if __name__ == "__main__":
   nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
   nyseCrawler = API_crawler( "../crawlers/NYSE_syms" )
-  lseCrawler = API_crawler( "../crawlers/LSE_syms" )
-
+  crawlerList = list()
+  crawlerList.append(nasdaqCrawler)
+  crawlerList.append(nyseCrawler)
   print "craweler init done"
 
   
   # maybe thread this? up until now, I store results on disk; caching? -- phi
   nasdaqCrawler.run()
-#  nyseCrawler.run()
-#  lseCrawler.run()
+  nyseCrawler.run()
 
 
-  # init and start feature extractor
-
+# init and start feature extractor
   featureExtractor = Extractor()
-#  featureExtractor.add_feature_classifier(monotony.Increasing)
-#  featureExtractor.add_feature_classifier(monotony.Decreasing)
+
+# FEATURE LIST:
+
+  #featureExtractor.add_feature_classifier(monotony.Increasing)
+  #featureExtractor.add_feature_classifier(monotony.Decreasing)
   featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteIncreasing)
   featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteDecreasing)
-#  featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
-#  featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
+  #featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
+  #featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
 
-  while True:
-    try:
-      extractResult = featureExtractor.from_filehandle( nasdaqCrawler.pullDataSet() )
-    except StopIteration:
-      print "StopIteration caught" 
-      break
-    print extractResult
+# API-Data-Stream to extractor
+  for crawler in crawlerList:
+    while True:
+      try:
+        extractResult = featureExtractor.from_filehandle( crawler.pullDataSet() )
+      except StopIteration:
+	print "StopIteration caught" 
+	break
+      else:
+	# store extractResult in fs
+	print extractResult
+
 
   print "done"
