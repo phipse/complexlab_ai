@@ -2,19 +2,18 @@
 
 from pymongo import MongoClient
 
-class Grouper:
-  first = True
+class Grouper(object):
   
   def __init__(self):
   # open db connection, read collection and copy it
     connection = MongoClient()
-    self.db = connection.ai
-    self.charactDB = self.db.features
-    for x in self.db.Characteristics.find():
-      self.charactDB.insert(x)
+    self.__db = connection.ai
+    self.__charactDB = self.__db.features
+    for x in self.__db.Characteristics.find():
+      self.__charactDB.insert(x)
   
   def grouping(self):
-# databsae layout:
+# database layout:
 #   Characteristic: ID,{ID}
 
   # Options:
@@ -29,9 +28,8 @@ class Grouper:
 
 #  ---------------------------
 # mongo shit
-    for x in range(10):
-      max_element = x;
-      self.charactDB = self.charactDB.map_reduce( self.mapfunc(x), 
+    for max_element in range(10):
+      self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element), 
 	  self.reducefunc(),""" {  out: { reduce: "characteristicGroups" },
 	    finalize: self.intersect()  }""", max_element );
 
@@ -39,13 +37,6 @@ class Grouper:
   #   for each char2 in db which has max_elements
   #	create new char1_charMax and intersect char1.val charMax.val
   # repeat until max_elements == Maximum one element characteristics
-  
-#  for x in charSet:
-#    if len(x) == 1:
-#      for y in charSet2:
-#	if len(x) == max_element:
-#	  newUnionSet = union( x, y)
-#	  x_val = self.db.
 
 
   def mapfunc(self, maxChar):
@@ -81,9 +72,6 @@ class Grouper:
     #	mark as uninteresting
 
   def run(self):
-    if self.first: 
-      self.__init__()
-      self.first = False
     self.grouping()
 
 
