@@ -2,20 +2,18 @@
 
 from pymongo import MongoClient
 
-class Grouper:
-  first = True
-  db
-  charactDB
-
-  def init(self):
+class Grouper(object):
+  
+  def __init__(self):
+  # open db connection, read collection and copy it
     connection = MongoClient()
-    self.db = connection.ai
-    # open db connection, read collection and copy it
-    for x in self.db.Characteristics.find():
-      self.charactDB.insert(x)
+    self.__db = connection.ai
+    self.__charactDB = self.__db.features
+    for x in self.__db.Characteristics.find():
+      self.__charactDB.insert(x)
   
   def grouping(self):
-# databsae layout:
+# database layout:
 #   Characteristic: ID,{ID}
 
   # Options:
@@ -30,22 +28,15 @@ class Grouper:
 
 #  ---------------------------
 # mongo shit
-    for x in list(10):
-      max_element = x;
-      charactDB = charactDB.map_reduce( self.mapfunc(max_element),
-	  slef.reducefunc(), self.intersect() );
+    for max_element in range(10):
+      self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element), 
+	  self.reducefunc(),""" {  out: { reduce: "characteristicGroups" },
+	    finalize: self.intersect()  }""", max_element );
 
   # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
   #	create new char1_charMax and intersect char1.val charMax.val
   # repeat until max_elements == Maximum one element characteristics
-  
-#  for x in charSet:
-#    if len(x) == 1:
-#      for y in charSet2:
-#	if len(x) == max_element:
-#	  newUnionSet = union( x, y)
-#	  x_val = self.db.
 
 
   def mapfunc(self, maxChar):
@@ -53,27 +44,27 @@ class Grouper:
     # checks: don't join me with myself; 
     #	      if I am a joined ID, ignore me unless I am a max size concatenation;
     #	      if the ID you want to join me with, is already joined, ignore it;
-    return """ function( maxChar ) {
+    return """function map( maxChar ) {
       self = this;
       if( self.split('_').length < maxChar ) return;
       this._id.forEach( function( x ) {
 	if( self._id == x ) return;
 	if( x.split('_').length > 1 ) return;
 	emit( [self._id, id].sort().join('_'), self.value );
-      }
+      })
     }; """
 
   def reducefunc(self):
-    return """ function( key, values ) {
-      return value : intersect( null, values );
-      }
+    return """function reduce( key, values ) {
+      return { value : intersect( null, values ) };
+      };
       """
 
 
-  def intesect(self):
-    return """intersectFunc = function( a, b ) {
-		a.filter( function(x) { return b.indexOf(x) >= 0; ) });
-	      }"""
+  def intersect(self):
+    return """intersect = function( a, b ) {
+		a.filter( function(x) { return b.indexOf(x) >= 0; });
+	      };"""
   
   
 #  def cleanup(self):
@@ -81,10 +72,7 @@ class Grouper:
     #	mark as uninteresting
 
   def run(self):
-    if first: 
-      init()
-      first = False
-    grouping()
+    self.grouping()
 
 
 
