@@ -1,0 +1,12 @@
+{
+    "name": "boerse",
+    "apis": [{
+        "name": "API1",
+        "opts": {"opts": "for API1"},
+        "features_to_observe": [
+        { "type": "Monotony", "default_id_ranges": [[0,255], null, [1,2]], "options": {"some": "opts"} }
+        { "type": "Monotony", "default_id_ranges": [[0,255], null, [1,2]], "options": {"other": "opts"} }
+        { "type": "OtherType", "default_id_ranges": [ null, null], "options": {"some": "opts", "api": "API2"} }
+        ]
+    }]
+}
