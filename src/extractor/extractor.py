@@ -91,6 +91,16 @@ class Extractor(object):
             data = eval("".join(data_file.readlines()))
         return self.extract(data)
 
+    
+    def from_filehandle(self, filehandle):
+      """read data from python filehandle. Intended to be used with return
+      value from API_crawler.pullDataSet()."""
+      import datetime
+      data = {}
+      data = eval( "".join(filehandle.readlines()))
+      return self.extract(data)
+
+
     def __repr__(self):
         return "<Extractor masks=%s>" % \
                (str(self.__available_masks),)
