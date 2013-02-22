@@ -20,16 +20,16 @@ def __has_parent(class_, parent):
             return True
     return False
 
-def get_all(directory, whitelist=["classifier"]):
+def get_all(directory, whitelist=["mask"]):
     # TODO make this work somehow
-    classifiers = list()
+    masks = list()
 
     sys.path.append(directory)
     logging.debug(directory)
 
-    classifier = __import__("classifier")
-    classifier_classes = inspect.getmembers(classifier, inspect.isclass)
-    Classifier = dict(classifier_classes)["Classifier"]
+    mask = __import__("mask")
+    mask_classes = inspect.getmembers(mask, inspect.isclass)
+    Mask = dict(mask_classes)["Mask"]
 
     for rel_path in glob.glob(join(directory, "*.py")):
         logging.debug(rel_path)
@@ -43,10 +43,10 @@ def get_all(directory, whitelist=["classifier"]):
             m = __import__(name)
             for name, class_ in inspect.getmembers(m, inspect.isclass):
                 logging.debug("%s: %s(%s)", name, class_.__bases__, class_)
-                # search for Classifier in parent classes
-                if __has_parent(class_, Classifier) and class_ != Classifier:
-                    classifiers.append(class_)
+                # search for Mask in parent classes
+                if __has_parent(class_, Mask) and class_ != Mask:
+                    masks.append(class_)
 
     sys.path.remove(directory)
-    logging.debug(classifiers)
-    return classifiers
+    logging.debug(masks)
+    return masks

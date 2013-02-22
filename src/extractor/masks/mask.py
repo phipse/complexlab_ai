@@ -7,7 +7,7 @@
 import logging
 
 
-class Classifier(object):
+class Mask(object):
     """super class for feature conditions. fits everywhere."""
 
     name = "dummy"
