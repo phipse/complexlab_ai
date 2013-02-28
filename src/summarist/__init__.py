@@ -1,8 +1,7 @@
 from pymongo import Connection
 
 class Summarist:
-    def __init__(self):
-        connection = Connection()
+    def __init__(self, connection = Connection()):
         self.db = connection.ai
 
     def process(self, features):
