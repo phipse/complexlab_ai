@@ -6,6 +6,8 @@
 
 import logging
 
+from ..features import FeatureClass
+
 
 class Mask(object):
     """super class for feature conditions. fits everywhere."""
@@ -20,6 +22,7 @@ class Mask(object):
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
+        self.feature_class = FeatureClass(self.name, [])
 
     def can_start(self, time, value):
         """implementors may override this"""
@@ -52,14 +55,14 @@ class Mask(object):
         """returns True if feature has to end here."""
         self.__t1 = self.__t_prev
         success = force or self.has_to_end(time, value)
-        logging.debug("%s: %s (o,n=%s,%s)", self, success, self.value,
-                      value)
+        logging.debug("%s: %s (o,n=%s,%s)",
+                      self, success, self.value, value)
         return success
 
     def make_feature(self):
         """constructs a feature description"""
-        res = (self.name, self.__t0, self.__t1, self.value) 
-        return res
+        return self.feature_class.create_feature([self.name, self.__t0,
+                                                  self.__t1, self.value])
 
     def is_stub(self, time, value):
         return self.__t0 == self.__t_prev
@@ -68,5 +71,5 @@ class Mask(object):
         return self.__t1 - self.__t0
 
     def __repr__(self):
-        return "<%s t0=%s, t1=%s, val=%f>" % (self.name, self.__t0, self.__t1, self.value,)
-
+        return "<%s t0=%s, t1=%s, val=%f>" % (self.name, self.__t0,
+                                              self.__t1, self.value,)

@@ -20,15 +20,15 @@ class TestExtractor(unittest.TestCase):
             logging.debug(self.data)
 
     def test_cond(self):
-        from classifiers import Classifier
+        from masks import mask
         e = Extractor()
         logging.debug(e)
-        e.add_feature_condition(Classifier)
+        e.add_feature_condition(mask)
         res = e.extract(self.data)
         self.assertTrue(len(res[self.data.keys()[0]]) > 0)
 
     def test_monotony(self):
-        from classifiers import monotony
+        from masks import absolute_monotony as monotony
         e = Extractor()
         logging.debug(e)
         e.add_feature_condition(monotony.Raising)
