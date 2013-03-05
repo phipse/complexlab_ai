@@ -10,11 +10,16 @@ from crawlers import API_crawler
 from extractor import Extractor
 from extractor.masks import absolute_monotony
 from extractor.masks import relative_monotony
+from summarist import Summarist
 from os import path, makedirs, remove
 
 
+featureFileList = list()
+fileListIterator = iter(featureFileList)
+
 def extractorStream( extractDataPath, crawlerList ):
   """ Stream API data to extractor """
+  summ = Summarist()
   for crawler in crawlerList:
     while True:
       try:
@@ -23,6 +28,8 @@ def extractorStream( extractDataPath, crawlerList ):
 	print "StopIteration caught" 
 	break
       else:
+	summ.process( extractResult.itervalues().next() )
+	"""
 	# store extractResult in fs
 	extFileName = str(extractResult.keys())
 	extFileName = extFileName[2:len(extFileName)-2]
@@ -34,9 +41,10 @@ def extractorStream( extractDataPath, crawlerList ):
 	  remove(extFileName)
 	f = file( extFileName, "w+" )
 	f.write( str(extractResult) )
+	featureFileList.append( extFileName )
 	f.flush()
 	f.close()
-
+"""
 
 
 
@@ -58,7 +66,6 @@ if __name__ == "__main__":
   featureExtractor = Extractor()
 
 # FEATURE LIST:
-
   #featureExtractor.add_feature_mask(monotony.Increasing)
   #featureExtractor.add_feature_mask(monotony.Decreasing)
   featureExtractor.add_feature_mask(absolute_monotony.AbsoluteIncreasing)
@@ -69,5 +76,11 @@ if __name__ == "__main__":
 # data storage paths
   extractDataPath = "../../data/extraction/"
   extractorStream( extractDataPath, crawlerList )
+
+# summarist
+  summ = Summarist()
+  for f in featureFileList:
+    featureList = file(f ,"r")
+    summ.process( featureList )
 
   print "done"
