@@ -1,4 +1,4 @@
-import feature_class
+import feature_class as FeatureClass
 
 class Feature:
     def __init__(attributes, feature_class):

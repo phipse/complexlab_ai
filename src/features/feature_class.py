@@ -1,4 +1,4 @@
-import Feature
+#import Feature
 
 class FeatureClass:
     def __init__(self, name, default_attr_ranges, opts = {}):

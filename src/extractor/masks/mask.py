@@ -6,7 +6,7 @@
 
 import logging
 
-from ..features import FeatureClass
+from features import FeatureClass
 
 
 class Mask(object):
