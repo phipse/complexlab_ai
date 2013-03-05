@@ -77,10 +77,4 @@ if __name__ == "__main__":
   extractDataPath = "../../data/extraction/"
   extractorStream( extractDataPath, crawlerList )
 
-# summarist
-  summ = Summarist()
-  for f in featureFileList:
-    featureList = file(f ,"r")
-    summ.process( featureList )
-
   print "done"
