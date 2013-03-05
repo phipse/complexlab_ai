@@ -8,9 +8,8 @@
 
 from crawlers import API_crawler
 from extractor import Extractor
-from classifiers import monotony
-from classifiers import absolute_monotony
-from classifiers import relative_monotony
+from extractor.masks import absolute_monotony
+from extractor.masks import relative_monotony
 from os import path, makedirs, remove
 
 
@@ -53,20 +52,19 @@ if __name__ == "__main__":
   
   # maybe thread this? up until now, I store results on disk; caching? -- phi
   nasdaqCrawler.run()
-  nyseCrawler.run()
-
+  #nyseCrawler.run()
 
 # init and start feature extractor
   featureExtractor = Extractor()
 
 # FEATURE LIST:
 
-  #featureExtractor.add_feature_classifier(monotony.Increasing)
-  #featureExtractor.add_feature_classifier(monotony.Decreasing)
-  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteIncreasing)
-  featureExtractor.add_feature_classifier(absolute_monotony.AbsoluteDecreasing)
-  #featureExtractor.add_feature_classifier(relative_monotony.RelativeIncreasing)
-  #featureExtractor.add_feature_classifier(relative_monotony.RelativeDecreasing)
+  #featureExtractor.add_feature_mask(monotony.Increasing)
+  #featureExtractor.add_feature_mask(monotony.Decreasing)
+  featureExtractor.add_feature_mask(absolute_monotony.AbsoluteIncreasing)
+  featureExtractor.add_feature_mask(absolute_monotony.AbsoluteDecreasing)
+  #featureExtractor.add_feature_mask(relative_monotony.RelativeIncreasing)
+  #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
 
 # data storage paths
   extractDataPath = "../../data/extraction/"
