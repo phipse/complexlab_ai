@@ -6,15 +6,17 @@ class Summarist:
 
     def process(self, features):
         for feature in features:
-            self.db.features.insert({"name": feature.name, "attributes": feature.attributes}) # TODO ensureIndex(name, id)
-            if self.db.features.count % 1000:
+            self.db.features.insert({"name": feature.name, "attributes": str(feature.attributes)}) # TODO ensureIndex(name, id)
+            if self.db.features.count() % 1000: # shouldn't it be a div
                 # update meta-object
                 meta = self.db.meta.find_one({"_id": feature.name})
                 default_attr_ranges = feature.default_attr_ranges
                 if(meta == None):
                     meta = {"_id": feature.name, "attr_ranges" : default_attr_ranges} # using _id because it is indexed by default
+		# WHY MINUS ONE?
                 for i in range(0, len(feature.attributes)-1):
-                    if meta.attr_ranges[i] == None: # create meta object for feature-name
+		  # THERE IS NO .-OPERATOR IN PYTHON..
+                    if meta['attr_ranges'] == None: # create meta object for feature-name
                         meta.attr_ranges[i] == [feature.attributes[i], feature.attributes[i]] # [min, max]
                     elif(default_attr_ranges[i] == None): # only update meta object if not specified by user (via feature-config)
                         if feature.attributes[i] < meta.attr_ranges[i]: # update min?
@@ -25,3 +27,6 @@ class Summarist:
 
                 # aggregate to characteristics, if possible async
                 # merge characteristics, if possible async. lock!
+
+    def serializeDateTime(self, date):
+      str(date)
