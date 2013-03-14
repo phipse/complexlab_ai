@@ -59,6 +59,10 @@ if __name__ == "__main__":
 
   
   # maybe thread this? up until now, I store results on disk; caching? -- phi
+  # if you have a dataset in this directory use this, else aquire a new one by
+  # running the crawler --phi
+  #fsPath = "../../data/dicts/"
+  #nasdaqCrawler.buildDataSetFromFs(fsPath)
   nasdaqCrawler.run()
   #nyseCrawler.run()
 
