@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from classifier import Classifier
+from mask import Mask
 
-class AbsoluteIncreasing(Classifier):
+class AbsoluteIncreasing(Mask):
     name = "increasing"
     can_overlay = False
 

@@ -26,19 +26,19 @@ def max_time_resolution(data):
     return res
 
 
-class Extractor(object):
+class SimpleExtractor(object):
     """extracts features from datasets"""
     def __init__(self):
-        self.__available_classifiers = list()
-        self.__running_classifiers = list()
+        self.__available_masks = list()
+        self.__running_masks = list()
 
-    def add_feature_classifier(self, feature_classifier):
-        """adds a feature classifier to it's collection"""
-        self.__available_classifiers.append(feature_classifier)
+    def add_feature_mask(self, feature_mask):
+        """adds a feature mask to it's collection"""
+        self.__available_masks.append(feature_mask)
 
     def __may_start(self, this):
-        """returns whether a classifier is blocked by other instances"""
-        for other in self.__running_classifiers:
+        """returns whether a mask is blocked by other instances"""
+        for other in self.__running_masks:
             if other.name == this.name and not this.can_overlay:
                 return False
         return True
@@ -51,35 +51,35 @@ class Extractor(object):
             #resampled = resample(data, resolution)
             logging.debug("iden: %s", iden)
             sorted_times = sorted(data.keys())
-            self.__running_classifiers = list()
+            self.__running_masks = list()
             # iterate over all time, value pairs
             for time, value in izip(sorted_times,
                                     imap(lambda k: data[k], sorted_times)):
-                # check whether started classifiers ended and store them as
+                # check whether started masks ended and store them as
                 # features
-                for classifier in self.__running_classifiers:
-                    if classifier.end(time, value):
-                        self.__running_classifiers.remove(classifier)
+                for mask in self.__running_masks:
+                    if mask.end(time, value):
+                        self.__running_masks.remove(mask)
 
-                        if not classifier.is_stub(time, value):
-                            feat = classifier.make_feature()
+                        if not mask.is_stub(time, value):
+                            feat = mask.make_feature()
                             res[iden].append(feat)
                     else:
-                        # classifier probably needs a step callback
-                        classifier.next(time, value)
+                        # mask probably needs a step callback
+                        mask.next(time, value)
 
-                # generate new classifiers
-                for classifier_gen in self.__available_classifiers:
-                    new_classifier = classifier_gen()
-                    if self.__may_start(new_classifier):
-                        if new_classifier.start(time, value):
-                            self.__running_classifiers.append(new_classifier)
-            # add the final classifiers that are still fulfilled
-            for classifier in self.__running_classifiers:
+                # generate new masks
+                for mask_gen in self.__available_masks:
+                    new_mask = mask_gen()
+                    if self.__may_start(new_mask):
+                        if new_mask.start(time, value):
+                            self.__running_masks.append(new_mask)
+            # add the final masks that are still fulfilled
+            for mask in self.__running_masks:
                 time, value = sorted_times[-1], data[sorted_times[-1]]
-                classifier.end(time, value)
-                if not classifier.is_stub(time, value):
-                    feat = classifier.make_feature()
+                mask.end(time, value)
+                if not mask.is_stub(time, value):
+                    feat = mask.make_feature()
                     res[iden].append(feat)
         return dict(res)
 
@@ -88,22 +88,20 @@ class Extractor(object):
         import datetime  # eval will use it
         data = {}
         with open(filename, "r") as data_file:
-            data = eval("".join(data_file.readlines()))
+            data = eval("".join(data_file.readlines()))  # TODO insecurity
         return self.extract(data)
 
-    
     def from_filehandle(self, filehandle):
-      """read data from python filehandle. Intended to be used with return
-      value from API_crawler.pullDataSet()."""
-      import datetime
-      data = {}
-      data = eval( "".join(filehandle.readlines()))
-      return self.extract(data)
-
+        """read data from python filehandle. Intended to be used with return
+        value from API_crawler.pullDataSet()."""
+        import datetime  # eval will use it
+        data = {}
+        data = eval("".join(filehandle.readlines()))  # TODO totally insecure
+        return self.extract(data)
 
     def __repr__(self):
-        return "<Extractor classifiers=%s>" % \
-               (str(self.__available_classifiers),)
+        return "<Extractor masks=%s>" % \
+               (str(self.__available_masks),)
 
 
 def __cli_interface():
@@ -111,34 +109,34 @@ def __cli_interface():
     import pprint
     import argparse
 
-    import classifiers
+    import masks
 
     app = argparse.ArgumentParser(description="Command line interface to \
                                               extractor")
     app.add_argument("datafile", type=str,
                      help="file containing python dict of data")
-    app.add_argument("classifiers", type=str,
+    app.add_argument("masks", type=str,
                      help="will add all plugin content to extractor's feature \
-                     classifiers")
+                     masks")
     app.add_argument("-d", "--debug", action="store_true",
                      help="highest verbose mode")
     args = app.parse_args()
-    args.classifiers = args.classifiers.split(",")
+    args.masks = args.masks.split(",")
 
     fstring = "%(levelname)s %(module)s:%(lineno)s %(funcName)s "\
               + "%(message)s"
     loglvl = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(format=fstring, level=loglvl)
 
-    plug_dir = join(dirname(__file__), "classifiers")
-    all_classifiers = classifiers.get_all(plug_dir, whitelist=args.classifiers)
-    if len(all_classifiers) == 0:
-        logging.fatal("No classifiers found: %s", args.classifiers)
+    plug_dir = join(dirname(__file__), "masks")
+    all_masks = masks.get_all(plug_dir, whitelist=args.masks)
+    if len(all_masks) == 0:
+        logging.fatal("No masks found: %s", args.masks)
         return 1
 
-    extr = Extractor()
-    for classifier in all_classifiers:
-        extr.add_feature_classifier(classifier)
+    extr = SimpleExtractor()
+    for mask in all_masks:
+        extr.add_feature_mask(mask)
 
     pprint.pprint(extr.from_file(args.datafile))
     return 0

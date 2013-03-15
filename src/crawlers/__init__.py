@@ -98,11 +98,23 @@ class API_crawler(object):
   
   def pullDataSet(self):
     return file( self.__fileIterator.next(), "r" )
+
+
+  def buildDataSetFromFs(self, fsPath):
+    print "Building dataset from local files"
+
+    if not path.exists(fsPath):
+      return -1;
+
+    for i in range(len(self.__identifier)):
+      sym = fsPath + self.__identifier[i];
+      if path.isfile(sym):
+	self.__fileNames.append(sym)
+      else:
+	break
     
-
-
-
-
+    print "Building done"
+    
 
 
 if __name__ == "__main__":
