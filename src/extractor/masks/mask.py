@@ -22,7 +22,8 @@ class Mask(object):
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
-        self.feature_class = FeatureClass(self.name, [])
+	# dummy hotfix TODO put the right data in the 2nd parameter
+        self.feature_class = FeatureClass(self.name, [1,2,3,4])
 
     def can_start(self, time, value):
         """implementors may override this"""
