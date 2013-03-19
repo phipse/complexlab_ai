@@ -11,6 +11,7 @@ from extractor import Extractor
 from extractor.masks import absolute_monotony
 from extractor.masks import relative_monotony
 from summarist import Summarist
+from grouper import Grouper
 from os import path, makedirs, remove
 import sys
 
@@ -24,12 +25,15 @@ def extractorStream( extractDataPath, crawlerList ):
   for crawler in crawlerList:
     while True:
       try:
-        extractResult = featureExtractor.from_filehandle( crawler.pullDataSet() )
+	ds = crawler.pullDataSet()
+	if ds == -1:
+	  print "All files extracted!"
+	  return
+        extractResult = featureExtractor.from_filehandle( ds )
       except StopIteration:
 	print "StopIteration caught" 
 	break
       else:
-	print "ELSE:"
 	summ.process( extractResult.itervalues().next() )
 	"""
 	# store extractResult in fs
@@ -49,6 +53,12 @@ def extractorStream( extractDataPath, crawlerList ):
 """
 
 
+def startGrouping():
+  print "Start grouping"
+  groupi = Grouper()
+  groupi.run()
+  print "Finished grouping"
+
 
 
 if __name__ == "__main__":
@@ -56,35 +66,38 @@ if __name__ == "__main__":
   print "root src path: " + ROOTSRCPATH
   ROOTDATAPATH = ROOTSRCPATH + "../data/"
 
-  nasdaqCrawler = API_crawler( ROOTSRCPATH + "crawlers/NASDAQ_syms", ROOTDATAPATH )
-  nyseCrawler = API_crawler( ROOTSRCPATH + "crawlers/NYSE_syms", ROOTDATAPATH )
-  crawlerList = list()
-  crawlerList.append(nasdaqCrawler)
-  crawlerList.append(nyseCrawler)
-  print "crawler init done"
+  if False:
+    nasdaqCrawler = API_crawler( ROOTSRCPATH + "crawlers/NASDAQ_syms", ROOTDATAPATH )
+    nyseCrawler = API_crawler( ROOTSRCPATH + "crawlers/NYSE_syms", ROOTDATAPATH )
+    crawlerList = list()
+    crawlerList.append(nasdaqCrawler)
+    #crawlerList.append(nyseCrawler)
+    print "crawler init done"
 
-  
+
   # maybe thread this? up until now, I store results on disk; caching? -- phi
   # if you have a dataset in this directory use this, else aquire a new one by
   # running the crawler --phi
-  fsPath = ROOTDATAPATH + "dicts/"
-  nasdaqCrawler.buildDataSetFromFs()
-  #nasdaqCrawler.run()
-  #nyseCrawler.run()
+    nasdaqCrawler.buildDataSetFromFs()
+    #nasdaqCrawler.run()
+    #nyseCrawler.run()
 
 # init and start feature extractor
-  featureExtractor = Extractor()
+    featureExtractor = Extractor()
 
 # FEATURE LIST:
-  #featureExtractor.add_feature_mask(monotony.Increasing)
-  #featureExtractor.add_feature_mask(monotony.Decreasing)
-  featureExtractor.add_feature_mask(absolute_monotony.AbsoluteIncreasing)
-  featureExtractor.add_feature_mask(absolute_monotony.AbsoluteDecreasing)
-  #featureExtractor.add_feature_mask(relative_monotony.RelativeIncreasing)
-  #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
+    #featureExtractor.add_feature_mask(monotony.Increasing)
+    #featureExtractor.add_feature_mask(monotony.Decreasing)
+    featureExtractor.add_feature_mask(absolute_monotony.AbsoluteIncreasing)
+    featureExtractor.add_feature_mask(absolute_monotony.AbsoluteDecreasing)
+    #featureExtractor.add_feature_mask(relative_monotony.RelativeIncreasing)
+    #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
 
 # data storage paths
-  extractDataPath = ROOTDATAPATH + "extraction/"
-  extractorStream( extractDataPath, crawlerList )
+    extractDataPath = ROOTDATAPATH + "extraction/"
+    extractorStream( extractDataPath, crawlerList )
+    startGrouping()
+  else:
+    startGrouping()
 
   print "done"
