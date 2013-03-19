@@ -1,11 +1,11 @@
 class Feature:
-    def __init__(self, attributes, feature_class):
+    def __init__(self, attributes, feature_group):
         self.attributes = attributes
-        self.feature_class = feature_class
+        self.feature_group = feature_group
 
     @property
     def name(self):
-        self.feature_class.name
+        self.feature_group.name
 
     @property
     def default_attr_ranges(self):
