@@ -50,8 +50,8 @@ def extractorStream( extractDataPath, crawlerList ):
 
 
 if __name__ == "__main__":
-  nasdaqCrawler = API_crawler( "../crawlers/NASDAQ_syms" )
-  nyseCrawler = API_crawler( "../crawlers/NYSE_syms" )
+  nasdaqCrawler = API_crawler( "crawlers/NASDAQ_syms" )
+  nyseCrawler = API_crawler( "crawlers/NYSE_syms" )
   crawlerList = list()
   crawlerList.append(nasdaqCrawler)
   crawlerList.append(nyseCrawler)
