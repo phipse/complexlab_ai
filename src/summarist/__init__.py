@@ -1,6 +1,7 @@
 from pymongo import Connection
+from summarist.meta import Meta
 
-class Summarist:
+class Summarist(object):
     def __init__(self, connection = Connection()):
         self.db = connection.ai
 
@@ -9,7 +10,8 @@ class Summarist:
             self.db.features.insert({"name": feature.name, "attributes": str(feature.attributes)}) # TODO ensureIndex on name, remove str if possible
             if(self.db.features.count() % 1000 == 0):
                 # update meta-object
-                meta = Meta(feature.feature_group.name, self.db) # get or create meta object of feature group
+		print self.db.features.count()
+                meta = Meta(feature.feature_group, self.db) # get or create meta object of feature group
                 meta.learn_from_attributes(feature.attributes)
                 meta.save()
 
