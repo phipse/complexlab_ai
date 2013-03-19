@@ -92,13 +92,19 @@ class API_crawler(object):
       self.__fileNames.append(filename)
       f.close()
       cnt += 1
+      # STOP CRAWLING AFTER 10 FILES:
       if cnt == 10:
-	break
+	break;
     print "done"
 
   
   def pullDataSet(self):
-    return file( self.__fileIterator.next(), "r" )
+    try:
+      ret = self.__fileIterator.next()
+    except StopIteration:
+      return -1;
+    else:
+      return file( ret, "r" )
 
 
   def buildDataSetFromFs(self):
