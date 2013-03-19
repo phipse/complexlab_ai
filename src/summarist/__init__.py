@@ -15,7 +15,7 @@ class Summarist:
 
                 # aggregate to characteristics, if possible async
                 # merge characteristics, if possible async. lock!
-        return true
+        return True
 
     def serializeDateTime(self, date):
       str(date)
