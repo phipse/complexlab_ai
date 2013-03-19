@@ -1,4 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=$PYTHONPATH
-python starter/__init__.py
+export PYTHONPATH=`pwd`:$PYTHONPATH
+echo $PYTHONPATH
+
+python starter/__init__.py `pwd`
+

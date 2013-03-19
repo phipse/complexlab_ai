@@ -7,7 +7,7 @@ import json
 
 class API_crawler(object):
 
-  def __init__(self, syms): 
+  def __init__(self, syms, dataPath): 
     self.__index = 0
     self.__identifier = list()  
     self.__first = True
@@ -16,6 +16,7 @@ class API_crawler(object):
     self.__fileIterator = iter(self.__fileNames)
     self.__symfile = file( syms, "r" )
     self.initIdentifier()
+    self._dataPath = dataPath
  
 
   def initIdentifier(self):
@@ -61,8 +62,8 @@ class API_crawler(object):
       if r.status_code != int(200): continue
       print "symbol: " + symbol 
       print "status: " + str(r.status_code)
-      storepath = "../../data/dicts/"
-    
+      storepath = self._dataPath + "dicts/" #"../../data/dicts/"
+      
       test = tempfile.TemporaryFile()
       test.write(r.text)
       test.flush()
@@ -100,14 +101,14 @@ class API_crawler(object):
     return file( self.__fileIterator.next(), "r" )
 
 
-  def buildDataSetFromFs(self, fsPath):
+  def buildDataSetFromFs(self):
     print "Building dataset from local files"
-
-    if not path.exists(fsPath):
+    dataSetPath = self._dataPath + "dicts/"
+    if not path.exists(dataSetPath):
       return -1;
 
     for i in range(len(self.__identifier)):
-      sym = fsPath + self.__identifier[i];
+      sym = dataSetPath + self.__identifier[i];
       if path.isfile(sym):
 	self.__fileNames.append(sym)
       else:

@@ -12,6 +12,7 @@ from extractor.masks import absolute_monotony
 from extractor.masks import relative_monotony
 from summarist import Summarist
 from os import path, makedirs, remove
+import sys
 
 
 featureFileList = list()
@@ -28,6 +29,7 @@ def extractorStream( extractDataPath, crawlerList ):
 	print "StopIteration caught" 
 	break
       else:
+	print "ELSE:"
 	summ.process( extractResult.itervalues().next() )
 	"""
 	# store extractResult in fs
@@ -50,8 +52,12 @@ def extractorStream( extractDataPath, crawlerList ):
 
 
 if __name__ == "__main__":
-  nasdaqCrawler = API_crawler( "crawlers/NASDAQ_syms" )
-  nyseCrawler = API_crawler( "crawlers/NYSE_syms" )
+  ROOTSRCPATH = sys.argv[1] + "/"; # passed in src/start
+  print "root src path: " + ROOTSRCPATH
+  ROOTDATAPATH = ROOTSRCPATH + "../data/"
+
+  nasdaqCrawler = API_crawler( ROOTSRCPATH + "crawlers/NASDAQ_syms", ROOTDATAPATH )
+  nyseCrawler = API_crawler( ROOTSRCPATH + "crawlers/NYSE_syms", ROOTDATAPATH )
   crawlerList = list()
   crawlerList.append(nasdaqCrawler)
   crawlerList.append(nyseCrawler)
@@ -61,9 +67,9 @@ if __name__ == "__main__":
   # maybe thread this? up until now, I store results on disk; caching? -- phi
   # if you have a dataset in this directory use this, else aquire a new one by
   # running the crawler --phi
-  #fsPath = "../../data/dicts/"
-  #nasdaqCrawler.buildDataSetFromFs(fsPath)
-  nasdaqCrawler.run()
+  fsPath = ROOTDATAPATH + "dicts/"
+  nasdaqCrawler.buildDataSetFromFs()
+  #nasdaqCrawler.run()
   #nyseCrawler.run()
 
 # init and start feature extractor
@@ -78,7 +84,7 @@ if __name__ == "__main__":
   #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
 
 # data storage paths
-  extractDataPath = "../data/extraction/"
+  extractDataPath = ROOTDATAPATH + "extraction/"
   extractorStream( extractDataPath, crawlerList )
 
   print "done"
