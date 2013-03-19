@@ -78,7 +78,7 @@ if __name__ == "__main__":
   #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
 
 # data storage paths
-  extractDataPath = "../../data/extraction/"
+  extractDataPath = "../data/extraction/"
   extractorStream( extractDataPath, crawlerList )
 
   print "done"

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-export PYTHONPATH=path/to/complexlab_ai/:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH
 python starter/__init__.py
