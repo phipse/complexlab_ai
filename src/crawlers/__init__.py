@@ -114,6 +114,8 @@ class API_crawler(object):
       return -1;
 
     for i in range(len(self.__identifier)):
+      if i > 100:
+	break
       sym = dataSetPath + self.__identifier[i];
       if path.isfile(sym):
 	self.__fileNames.append(sym)
