@@ -6,27 +6,16 @@ class Summarist:
 
     def process(self, features):
         for feature in features:
-            self.db.features.insert({"name": feature.name, "attributes": str(feature.attributes)}) # TODO ensureIndex(name, id)
-            if self.db.features.count() % 1000: # shouldn't it be a div
+            self.db.features.insert({"name": feature.name, "attributes": str(feature.attributes)}) # TODO ensureIndex on name, remove str if possible
+            if(self.db.features.count() % 1000 == 0):
                 # update meta-object
-                meta = self.db.meta.find_one({"_id": feature.name})
-                default_attr_ranges = feature.default_attr_ranges
-                if(meta == None):
-                    meta = {"_id": feature.name, "attr_ranges" : default_attr_ranges} # using _id because it is indexed by default
-		# WHY MINUS ONE?
-                for i in range(0, len(feature.attributes)-1):
-		  # THERE IS NO .-OPERATOR IN PYTHON..
-                    if meta['attr_ranges'] == None: # create meta object for feature-name
-                        meta.attr_ranges[i] == [feature.attributes[i], feature.attributes[i]] # [min, max]
-                    elif(default_attr_ranges[i] == None): # only update meta object if not specified by user (via feature-config)
-                        if feature.attributes[i] < meta.attr_ranges[i]: # update min?
-                            meta.attr_ranges[i][0] = feature.attributes[i]
-                        elif feature.attributes[i] > meta.attr_ranges[i]: # update max?
-                            meta.attr_ranges[i][1] = feature.attributes[i]
-                self.db.meta.save(meta)
+                meta = Meta(feature.feature_group.name, self.db) # get or create meta object of feature group
+                meta.learn_from_attributes(feature.attributes)
+                meta.save()
 
                 # aggregate to characteristics, if possible async
                 # merge characteristics, if possible async. lock!
+        return true
 
     def serializeDateTime(self, date):
       str(date)
