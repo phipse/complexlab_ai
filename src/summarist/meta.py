@@ -1,4 +1,3 @@
-
 class Meta(object):
     def __init__(self, feature_group, db):
         self.db = db
