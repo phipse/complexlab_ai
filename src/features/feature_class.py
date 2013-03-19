@@ -9,5 +9,5 @@ class FeatureClass:
 
     def create_feature(self, attributes):
       if not isinstance(attributes, list) or (isinstance(attributes, list) and len(self.default_attr_ranges) != len(attributes)):
-          raise ValueError, "in FeatureClass: attributes must be a list and have the same length like default_id_ranges"
+          raise ValueError, "in FeatureClass: attributes must be a list and have the same length like default_attr_ranges"
       return Feature(attributes, self)
