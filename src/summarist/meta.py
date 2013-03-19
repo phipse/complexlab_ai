@@ -8,7 +8,7 @@ class Meta(object):
             self.data = {"_id": feature_group.name, "attr_ranges" : feature_group.default_attr_ranges} # using _id because it is indexed by default
 
     def attr_ranges(self):
-        return data['attr_ranges']
+        return self.data['attr_ranges']
 
     def feature_group_name(self):
         return self.data['_id']
