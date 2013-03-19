@@ -8,9 +8,6 @@ class FeatureClass:
         self.name = name
 
     def create_feature(self, attributes):
-        
-      # what shall the OR part check? I get a TypeError: object of type
-      # 'builtin_function_or_method' has no len() --phi
-      if not isinstance(attributes, list): #or len(self.default_attr_ranges) != len(id):
-            raise ValueError, "id must be a list and have the same length like default_id_ranges"
+      if not isinstance(attributes, list) or (isinstance(attributes, list) and len(self.default_attr_ranges) != len(attributes)):
+          raise ValueError, "in FeatureClass: attributes must be a list and have the same length like default_id_ranges"
       return Feature(attributes, self)
