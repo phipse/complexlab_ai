@@ -7,7 +7,7 @@ class Summarist(object):
 
     def process(self, features):
         for feature in features:
-            self.db.features.insert({"name": feature.name, "attributes": str(feature.attributes)}) # TODO ensureIndex on name, remove str if possible
+            self.db.features.insert({"name": feature.feature_group.name, "attributes": str(feature.attributes)}) # TODO ensureIndex on name, remove str if possible
             if(self.db.features.count() % 1000 == 0):
                 # update meta-object
 		print self.db.features.count()
