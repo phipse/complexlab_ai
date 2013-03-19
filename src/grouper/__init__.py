@@ -28,10 +28,11 @@ class Grouper(object):
 
 #  ---------------------------
 # mongo shit
+    IDs = self.__charactDB.distinct('name')
     for max_element in range(10):
-      self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element), 
-	  self.reducefunc(),""" {  out: { reduce: "characteristicGroups" },
-	    finalize: self.intersect()  }""", max_element );
+      self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element),
+      self.reducefunc(),{ "reduce": "charactGroups" },
+      scope= { "ids": IDs, "maxChar": max_element } );
 
   # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
@@ -46,17 +47,18 @@ class Grouper(object):
     #	      if the ID you want to join me with, is already joined, ignore it;
     return """function map( maxChar ) {
       self = this;
-      if( self.split('_').length < maxChar ) return;
-      this._id.forEach( function( x ) {
+      if( self.name.split('_').length < maxChar ) return;
+      ids.forEach( function( x ) {
 	if( self._id == x ) return;
 	if( x.split('_').length > 1 ) return;
-	emit( [self._id, id].sort().join('_'), self.value );
+	emit( [self.name, x].sort().join('_'), self.value );
       })
     }; """
 
   def reducefunc(self):
     return """function reduce( key, values ) {
-      return { value : intersect( null, values ) };
+	print(key)
+	print(values)
       };
       """
 
