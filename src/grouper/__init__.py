@@ -32,7 +32,7 @@ class Grouper(object):
     for max_element in range(10):
       self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element),
       self.reducefunc(),{ "reduce": "charactGroups" },
-      scope= { "ids": IDs, "maxChar": max_element } );
+      scope= { "ids": IDs } ); 
 
   # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
