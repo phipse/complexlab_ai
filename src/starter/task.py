@@ -17,7 +17,7 @@ class Task(object):
             sys.exit("Error parsing config: no 'options' in feature '%s' specified" % fto['type'])
 
     def __init__(self, path):
-        self.tasks = []
+        self.masks = []
         task = json.load(open(path))
         if not 'apis' in task: sys.exit("Error parsing config: no 'apis' specfied")
         for api in task['apis']:
@@ -26,4 +26,4 @@ class Task(object):
                 self.check_fto(api, fto)
                 mask_gen = getattr(globals()[fto['type'].split('.')[0]], fto['type'].split('.')[1])
                 feature_group = FeatureGroup(fto['type'], fto['default_attr_ranges'], fto['options'])
-                self.tasks.append({"feature_group": feature_group, "mask_gen": mask_gen})
+                self.masks.append({"feature_group": feature_group, "mask_gen": mask_gen})

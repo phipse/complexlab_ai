@@ -102,8 +102,8 @@ if __name__ == "__main__":
     #featureExtractor.add_feature_mask(relative_monotony.RelativeIncreasing)
     #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
 
-    for mask in task.masks:
-        featureExtractor.add_feature_mask(mask['mask_gen'], mask['feature_group'])
+  for mask in task.masks:
+    featureExtractor.add_feature_mask(mask['mask_gen'], mask['feature_group'])
 
 # data storage paths
     extractDataPath = ROOTDATAPATH + "extraction/"

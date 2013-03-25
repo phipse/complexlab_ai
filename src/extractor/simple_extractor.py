@@ -70,7 +70,7 @@ class SimpleExtractor(object):
 
                 # generate new masks
                 for mask_rep in self.__available_masks:
-                    new_mask = mask_rep['mask_gen'](feature_group)
+                    new_mask = mask_rep['mask_gen'](mask_rep['feature_group'])
                     if self.__may_start(new_mask):
                         if new_mask.start(time, value):
                             self.__running_masks.append(new_mask)

@@ -17,7 +17,7 @@ class Mask(object):
     value = 0
 
     def __init__(self, feature_group):
-        self.name = name
+        self.name = feature_group.name
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
