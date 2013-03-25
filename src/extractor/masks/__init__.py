@@ -9,7 +9,7 @@ import sys
 import glob
 import inspect
 import logging
-from os.path import join, basename
+from os.path import join, basename, realpath, dirname
 
 
 def __has_parent(class_, parent):
@@ -20,8 +20,8 @@ def __has_parent(class_, parent):
             return True
     return False
 
-def get_all(directory, whitelist=["mask"]):
-    # TODO make this work somehow
+def get_all_masks(whitelist=["mask"], directory=dirname(realpath(__file__))):
+    """import all feature masks and return a list"""
     masks = list()
 
     sys.path.append(directory)

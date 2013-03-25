@@ -8,8 +8,7 @@
 
 from crawlers import API_crawler
 from extractor import Extractor
-from extractor.masks import absolute_monotony
-from extractor.masks import relative_monotony
+from extractor.masks import get_all_masks
 from summarist import Summarist
 from grouper import Grouper
 from os import path, makedirs, remove
@@ -86,12 +85,9 @@ if __name__ == "__main__":
     featureExtractor = Extractor()
 
 # FEATURE LIST:
-    #featureExtractor.add_feature_mask(monotony.Increasing)
-    #featureExtractor.add_feature_mask(monotony.Decreasing)
-    featureExtractor.add_feature_mask(absolute_monotony.AbsoluteIncreasing)
-    featureExtractor.add_feature_mask(absolute_monotony.AbsoluteDecreasing)
-    #featureExtractor.add_feature_mask(relative_monotony.RelativeIncreasing)
-    #featureExtractor.add_feature_mask(relative_monotony.RelativeDecreasing)
+    #featureExtractor.add_feature_masks(get_all_masks(["monotony"]))
+    #featureExtractor.add_feature_masks(get_all_masks(["relative_monotony"]))
+    featureExtractor.add_feature_masks(get_all_masks(["absolute_monotony"]))
 
 # data storage paths
     extractDataPath = ROOTDATAPATH + "extraction/"
