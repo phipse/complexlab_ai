@@ -1,0 +1,11 @@
+{
+    "name": "boerse",
+    "apis": [{
+        "name": "NASDAQ",
+        "options": {},
+        "features_to_observe": [
+        { "type": "absolute_monotony.AbsoluteIncreasing", "default_attr_ranges": [null, null, null], "options": {} },
+        { "type": "absolute_monotony.AbsoluteDecreasing", "default_attr_ranges": [null, null, null], "options": {} }
+        ]
+    }]
+}

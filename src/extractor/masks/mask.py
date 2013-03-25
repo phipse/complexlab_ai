@@ -6,7 +6,7 @@
 
 import logging
 
-from features import FeatureClass
+from features import FeatureGroup
 
 
 class Mask(object):
@@ -16,14 +16,12 @@ class Mask(object):
     can_overlay = True
     value = 0
 
-    def __init__(self, name=None):
-        if name is not None:
-            self.name = name
+    def __init__(self, feature_group):
+        self.name = feature_group.name
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
-	# dummy hotfix TODO put the right data in the 2nd parameter
-        self.feature_class = FeatureClass(self.name, [1,2,3,4])
+        self.feature_group = feature_group 
 
     def can_start(self, time, value):
         """implementors may override this"""
@@ -62,8 +60,7 @@ class Mask(object):
 
     def make_feature(self):
         """constructs a feature description"""
-        return self.feature_class.create_feature([self.name, self.__t0,
-                                                  self.__t1, self.value])
+        return self.feature_group.create_feature([self.__t0, self.__t1, self.value])
 
     def is_stub(self, time, value):
         return self.__t0 == self.__t_prev

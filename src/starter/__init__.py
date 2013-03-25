@@ -6,6 +6,7 @@
 # TLDR:	  Put it all together.
 # ----------------------------------------------------------------------------
 
+from task import Task
 from crawlers import API_crawler
 from extractor import Extractor
 from extractor.masks import get_all_masks
@@ -61,9 +62,17 @@ def startGrouping():
 
 
 if __name__ == "__main__":
+  if len(sys.argv) != 3:
+    sys.exit("Usage: %s working-directory task-name" % sys.argv[0])
+
   ROOTSRCPATH = sys.argv[1] + "/"; # passed in src/start
   print "root src path: " + ROOTSRCPATH
   ROOTDATAPATH = ROOTSRCPATH + "../data/"
+
+  # parse task
+  TASKPATH = sys.argv[2]
+  if not TASKPATH.endswith(".json"): TASKPATH = "tasks/" + TASKPATH + ".json"
+  task = Task(TASKPATH)
 
   if False:
     nasdaqCrawler = API_crawler( ROOTSRCPATH + "crawlers/NASDAQ_syms", ROOTDATAPATH )
@@ -85,9 +94,10 @@ if __name__ == "__main__":
     featureExtractor = Extractor()
 
 # FEATURE LIST:
-    #featureExtractor.add_feature_masks(get_all_masks(["monotony"]))
-    #featureExtractor.add_feature_masks(get_all_masks(["relative_monotony"]))
     featureExtractor.add_feature_masks(get_all_masks(["absolute_monotony"]))
+
+  for mask in task.masks:
+    featureExtractor.add_feature_mask(mask['mask_gen'], mask['feature_group'])
 
 # data storage paths
     extractDataPath = ROOTDATAPATH + "extraction/"

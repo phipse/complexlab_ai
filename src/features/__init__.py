@@ -1,2 +1,2 @@
-from feature_class import FeatureClass
+from feature_group import FeatureGroup
 from feature import Feature

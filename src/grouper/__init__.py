@@ -1,12 +1,12 @@
 #!/bin/python
 
-from pymongo import MongoClient
+from pymongo import Connection
 
 class Grouper(object):
   
   def __init__(self):
   # open db connection, read collection and copy it
-    connection = MongoClient()
+    connection = Connection()
     self.__db = connection.ai
     self.__charactDB = self.__db.features
     for x in self.__db.Characteristics.find():
@@ -32,7 +32,7 @@ class Grouper(object):
     for max_element in range(10):
       self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element),
       self.reducefunc(),{ "reduce": "charactGroups" },
-      scope= { "ids": IDs, "maxChar": max_element } );
+      scope= { "ids": IDs } ); 
 
   # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements

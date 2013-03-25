@@ -2,11 +2,11 @@
     "name": "boerse",
     "apis": [{
         "name": "API1",
-        "opts": {"opts": "for API1"},
+        "options": {"opts": "for API1"},
         "features_to_observe": [
-        { "type": "Monotony", "default_attr_ranges": [[0,255], null, [1,2]], "options": {"some": "opts"} },
-        { "type": "Monotony", "default_attr_ranges": [[0,255], null, [1,2]], "options": {"other": "opts"} },
-        { "type": "OtherType", "default_attr_ranges": [ null, null], "options": {"some": "opts"} }
+        { "type": "monotony.Monotony", "default_attr_ranges": [[0,255], null, [1,2]], "options": {"some": "opts"} },
+        { "type": "monotony.Monotony", "default_attr_ranges": [[0,255], null, [1,2]], "options": {"other": "opts"} },
+        { "type": "othermodule.OtherType", "default_attr_ranges": [ null, null], "options": {"some": "opts"} }
         ]
     }]
 }
