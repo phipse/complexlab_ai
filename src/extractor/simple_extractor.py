@@ -32,9 +32,9 @@ class SimpleExtractor(object):
         self.__available_masks = list()
         self.__running_masks = list()
 
-    def add_feature_mask(self, feature_mask):
+    def add_feature_mask(self, feature_mask, feature_group):
         """adds a feature mask to it's collection"""
-        self.__available_masks.append(feature_mask)
+        self.__available_masks.append({"mask_gen" : feature_mask, "feature_group" : feature_group})
 
     def __may_start(self, this):
         """returns whether a mask is blocked by other instances"""
@@ -69,8 +69,8 @@ class SimpleExtractor(object):
                         mask.next(time, value)
 
                 # generate new masks
-                for mask_gen in self.__available_masks:
-                    new_mask = mask_gen()
+                for mask_rep in self.__available_masks:
+                    new_mask = mask_rep['mask_gen'](feature_group)
                     if self.__may_start(new_mask):
                         if new_mask.start(time, value):
                             self.__running_masks.append(new_mask)

@@ -16,12 +16,12 @@ class Mask(object):
     can_overlay = True
     value = 0
 
-    def __init__(self, name, default_attr_ranges):
+    def __init__(self, feature_group):
         self.name = name
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
-        self.feature_group = FeatureGroup(self.name, default_attr_ranges)
+        self.feature_group = feature_group 
 
     def can_start(self, time, value):
         """implementors may override this"""
