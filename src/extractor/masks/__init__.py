@@ -5,6 +5,11 @@
 
 """
 
+import os
+import glob
+
+__all__ = [ os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname(__file__)+"/*.py") if not os.path.basename(f).startswith('__')] # import all masks, from outside: from extractor.masks import * - TODO make this better! ;-)
+
 import sys
 import glob
 import inspect
