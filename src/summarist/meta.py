@@ -2,15 +2,17 @@ class Meta(object):
     def __init__(self, feature_group, db):
         self.db = db
         self.feature_group = feature_group
-        self.data = db.meta.find_one({"_id": feature_group.name})
+        self.data = db.meta.find_one({"name": feature_group.name})
         if(self.data == None):
-            self.data = {"_id": feature_group.name, "attr_ranges" : feature_group.default_attr_ranges} # using _id because it is indexed by default
+            self.data = {"name": feature_group.name, "attr_ranges" : feature_group.default_attr_ranges} # using _id because it is indexed by default
+	    # replaced with name, because a consistent naming scheme is
+	    # necessary for the grouper --phi
 
     def attr_ranges(self):
         return self.data['attr_ranges']
 
     def feature_group_name(self):
-        return self.data['_id']
+        return self.data['name']
 
     def learn_from_attributes(self, attributes):
         for i in range(0, len(attributes)-1):
