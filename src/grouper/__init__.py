@@ -45,13 +45,33 @@ class Grouper(object):
     # checks: don't join me with myself; 
     #	      if I am a joined ID, ignore me unless I am a max size concatenation;
     #	      if the ID you want to join me with, is already joined, ignore it;
+    #	      if I already contain the ID you want to join me with, ignore it;
+    #
+    # BUGS: somehow the grouper creates DB_entries with the name in the _id
+    # section, I guess its a mongodb internal thing. 
+    #	I think it's the grouper, as the summarist is not writing to _id
+    # ERROR: Cannot wirte property name to read-only object
+    #	Where the fuck is that coming frome? 
     return """function map( maxChar ) {
       self = this;
+      if( self.name == undefined )
+      {	
+        if( self._id != undefined ) 
+	{
+	  self.name = self._id;
+	}
+	else
+	{
+	  print( "self _id: " + self._id );
+	  print( "self object_id: " + self._object_id );
+	}
+      }
       if( self.name.split('_').length < maxChar ) return;
       ids.forEach( function( x ) {
-	if( self._id == x ) return;
+	if( self.name == x ) return;
 	if( x.split('_').length > 1 ) return;
-	emit( [self.name, x].sort().join('_'), self.value );
+	if( self.name.split('_').indexOf(x) != -1 ) return;
+	emit( [self.name, x].sort().join('_'), self.attributes );
       })
     }; """
 
