@@ -1,5 +1,6 @@
+import logging
 from datetime import date
-from os import path
+from os.path import isfile, exists, join
 import os
 import tempfile 
 import requests
@@ -27,13 +28,9 @@ class API_crawler(object):
 
 
   def setTimeFrame(self):
-    startString = "&a=0&b=1&c=1900"
     today = date.today()
-    pieces = str(today).split("-")
-    startString += "&d="+ str( int(pieces[1])-1 );
-    startString += "&e=" + str( int( pieces[2] ) );
-    startString += "&f=" + str( int( pieces[0] ) );
-    return startString
+    startString = "&a=0&b=1&c=1900&d=%i&e=%i&f=%i"
+    return startString % (today.month-1, today.day, today.year,)
 
 
   def setID(self):
@@ -59,10 +56,10 @@ class API_crawler(object):
     cnt = 0
     for symbol in self.__requestAddresses:
       r = requests.get(symbol)
-      if r.status_code != int(200): continue
-      print "symbol: " + symbol 
-      print "status: " + str(r.status_code)
-      storepath = self._dataPath + "dicts/" #"../../data/dicts/"
+      if r.status_code != 200: continue
+      logging.debug("symbol: " + symbol)
+      logging.debug("status: %s", r.status_code)
+      storepath = join(self._dataPath, "dicts/") #"../../data/dicts/"
       
       test = tempfile.TemporaryFile()
       test.write(r.text)
@@ -80,10 +77,10 @@ class API_crawler(object):
 	dictusMongus.update( {ti:value} )
 
       nojs = { self.__identifier[cnt] : dictusMongus}
-      filename = storepath + self.__identifier[cnt]
-      if not path.exists(storepath):
+      filename = join(storepath, self.__identifier[cnt])
+      if not exists(storepath):
 	os.makedirs(storepath) 
-      if path.isfile(filename):
+      if isfile(filename):
 	os.remove(filename)
       f = file(filename, "w+")
       f.write( str( nojs))
@@ -108,21 +105,21 @@ class API_crawler(object):
 
 
   def buildDataSetFromFs(self):
-    print "Building dataset from local files"
-    dataSetPath = self._dataPath + "dicts/"
-    if not path.exists(dataSetPath):
+    logging.debug("Building dataset from local files")
+    dataSetPath = join(self._dataPath, "dicts/")
+    if not exists(dataSetPath):
       return -1;
 
     for i in range(len(self.__identifier)):
       if i > 100:
 	break
-      sym = dataSetPath + self.__identifier[i];
-      if path.isfile(sym):
+      sym = join(dataSetPath, self.__identifier[i])
+      if isfile(sym):
 	self.__fileNames.append(sym)
       else:
 	break
     
-    print "Building done"
+    logging.debug("Building done")
     
 
 

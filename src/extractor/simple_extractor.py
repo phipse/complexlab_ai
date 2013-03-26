@@ -36,6 +36,14 @@ class SimpleExtractor(object):
         """adds a feature mask to it's collection"""
         self.__available_masks.append({"mask_gen" : feature_mask, "feature_group" : feature_group})
 
+    def add_feature_masks(self, feature_masks):
+        """adds a list of feature masks to it's collection"""
+        self.__available_masks += feature_masks
+
+    def add_all_feat_masks(self, mask_package_name, plug_dir):
+        all_masks = masks.get_all_masks(whitelist=mask_package_name, directory=plug_dir)
+        self.add_feature_masks(all_masks)
+
     def __may_start(self, this):
         """returns whether a mask is blocked by other instances"""
         for other in self.__running_masks:
@@ -129,7 +137,7 @@ def __cli_interface():
     logging.basicConfig(format=fstring, level=loglvl)
 
     plug_dir = join(dirname(__file__), "masks")
-    all_masks = masks.get_all(plug_dir, whitelist=args.masks)
+    all_masks = masks.get_all_masks(whitelist=args.masks, directory=plug_dir)
     if len(all_masks) == 0:
         logging.fatal("No masks found: %s", args.masks)
         return 1
