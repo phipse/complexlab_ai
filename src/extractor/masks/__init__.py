@@ -30,7 +30,7 @@ def available_mask_packages(directory=THISDIR):
     """returns list of mask package names"""
     result = list()
     for rel_path in glob.glob(join(directory, "*.py")):
-        result.append(basename(rel_path)[.-3])
+        result.append(basename(rel_path)[:-3])
     return result
 
 def get_all_masks(whitelist=["mask"], directory=THISDIR):
