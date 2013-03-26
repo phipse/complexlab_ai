@@ -1,8 +1,16 @@
+from sys import exit
+import logging
 from pymongo import Connection
 from summarist.meta import Meta
 
 class Summarist(object):
-    def __init__(self, connection = Connection()):
+    def __init__(self, connection=None):
+        if connection is None:
+            try:
+                connection = Connection()
+            except Exception, e:
+                logging.fatal(e)
+                exit(1)
         self.db = connection.ai
 
     def process(self, features):
