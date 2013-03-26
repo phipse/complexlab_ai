@@ -1,6 +1,0 @@
-#!/bin/bash
-
-export PYTHONPATH=`pwd`:$PYTHONPATH
-echo $PYTHONPATH
-
-python starter/__init__.py `pwd` test_task

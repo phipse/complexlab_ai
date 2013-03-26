@@ -6,9 +6,6 @@
 
 import logging
 
-from features import FeatureGroup
-
-
 class Mask(object):
     """super class for feature conditions. fits everywhere."""
 
