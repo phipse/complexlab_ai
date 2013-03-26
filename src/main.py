@@ -56,11 +56,11 @@ def __cli_main():
                                    for correlations.""")
   app.add_argument("data_dir", type=str, help="directory for data storage")
   app.add_argument("task_path", type=str, help="path to task.json")
-  app.add_argument("--skip-crawl", "-c", default=False, action="store_false",
+  app.add_argument("--skip-crawl", "-c", default=False, action="store_true",
                    help="DO NOT crawl from APIs",)
-  app.add_argument("--skip-group", "-g", default=False, action="store_false",
+  app.add_argument("--skip-group", "-g", default=False, action="store_true",
                    help="DO NOT group extracted data",)
-  app.add_argument("--skip-extract", "-e", default=False, action="store_false",
+  app.add_argument("--skip-extract", "-e", default=False, action="store_true",
                    help="DO NOT extract from files",)
   app.add_argument("--extraction_masks", "-m", default="", type=str,
                    help="comma separated list of mask names")
