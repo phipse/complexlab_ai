@@ -16,6 +16,7 @@ import inspect
 import logging
 from os.path import join, basename, realpath, dirname
 
+THISDIR = dirname(realpath(__file__))
 
 def __has_parent(class_, parent):
     if class_ == parent:
@@ -25,12 +26,19 @@ def __has_parent(class_, parent):
             return True
     return False
 
-def get_all_masks(whitelist=["mask"], directory=dirname(realpath(__file__))):
+def available_mask_packages(directory=THISDIR):
+    """returns list of mask package names"""
+    result = list()
+    for rel_path in glob.glob(join(directory, "*.py")):
+        result.append(basename(rel_path)[.-3])
+    return result
+
+def get_all_masks(whitelist=["mask"], directory=THISDIR):
     """import all feature masks and return a list"""
     masks = list()
 
-    sys.path.append(directory)
     logging.debug(directory)
+    sys.path.append(directory)
 
     mask = __import__("mask")
     mask_classes = inspect.getmembers(mask, inspect.isclass)
