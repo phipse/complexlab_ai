@@ -97,23 +97,23 @@ def __cli_main():
     logging.fatal("MongoDB daemon not running?")
     return 1
 
+  create_crawler = lambda x: API_crawler(join(SRCPATH,
+                                              "crawlers/%s" % x),
+                                         DATAPATH)
+
+  crawlers = ["NASDAQ_syms",
+              #"NYSE_syms",
+             ]
+  crawlerList = [create_crawler(c) for c in crawlers]
+
+  logging.debug("Crawler init done")
+
+  # maybe thread this? up until now, I store results on disk; caching? -- phi
+
+  # if you have a dataset in this directory use this, else aquire a new one
+  # by running the crawler --phi
+
   if not args.skip_crawl:
-    create_crawler = lambda x: API_crawler(join(SRCPATH,
-                                                "crawlers/%s" % x),
-                                           DATAPATH)
-
-    crawlers = ["NASDAQ_syms",
-                #"NYSE_syms",
-               ]
-    crawlerList = [create_crawler(c) for c in crawlers]
-
-    logging.debug("Crawler init done")
-
-    # maybe thread this? up until now, I store results on disk; caching? -- phi
-
-    # if you have a dataset in this directory use this, else aquire a new one
-    # by running the crawler --phi
-
     for c in crawlerList:
       c.buildDataSetFromFs()
       logging.debug("Built dataset from file storage")
