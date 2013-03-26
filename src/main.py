@@ -58,6 +58,8 @@ def __cli_main():
   app.add_argument("task_path", type=str, help="path to task.json")
   app.add_argument("--skip-crawl", "-c", default=False, action="store_true",
                    help="DO NOT crawl from APIs",)
+  app.add_argument("--local-ds-build", "-l", default=False, action="store_true",
+                   help="Build crawler dataset from local data",)
   app.add_argument("--skip-group", "-g", default=False, action="store_true",
                    help="DO NOT group extracted data",)
   app.add_argument("--skip-extract", "-e", default=False, action="store_true",
@@ -115,11 +117,13 @@ def __cli_main():
 
   if not args.skip_crawl:
     for c in crawlerList:
-      c.buildDataSetFromFs()
-      logging.debug("Built dataset from file storage")
-      logging.debug("Running %s", c)
-      c.run()
-      logging.debug("Done %s", c)
+			if args.local_ds_build:
+				c.buildDataSetFromFs()
+				logging.debug("Built dataset from file storage")
+			else:
+				logging.debug("Running %s", c)
+				c.run()
+				logging.debug("Done %s", c)
 
   if not args.skip_extract:
     # init and start feature extractor
