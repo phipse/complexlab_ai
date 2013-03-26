@@ -58,7 +58,13 @@ class Grouper(object):
       {	
         if( self._id != undefined ) 
 	{
-	  self.name = self._id;
+	  if( self._id.split('_').length < maxChar ) return;
+	  ids.forEach( function( x ) {
+	    if( self._id == x ) return;
+	    if( x.split('_').length > 1 ) return;
+	    if( self._id.split('_').indexOf(x) != -1 ) return;
+	    emit( [self._id, x].sort().join('_'), self.attributes );
+	  })
 	}
 	else
 	{
@@ -66,13 +72,16 @@ class Grouper(object):
 	  print( "self object_id: " + self._object_id );
 	}
       }
-      if( self.name.split('_').length < maxChar ) return;
-      ids.forEach( function( x ) {
-	if( self.name == x ) return;
-	if( x.split('_').length > 1 ) return;
-	if( self.name.split('_').indexOf(x) != -1 ) return;
-	emit( [self.name, x].sort().join('_'), self.attributes );
-      })
+      else
+      {
+	if( self.name.split('_').length < maxChar ) return;
+	ids.forEach( function( x ) {
+	  if( self.name == x ) return;
+	  if( x.split('_').length > 1 ) return;
+	  if( self.name.split('_').indexOf(x) != -1 ) return;
+	  emit( [self.name, x].sort().join('_'), self.attributes );
+	})
+      }
     }; """
 
   def reducefunc(self):
