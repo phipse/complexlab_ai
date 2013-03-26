@@ -40,8 +40,8 @@ def extractorStream(featureExtractor, crawlerList):
       except StopIteration:
         print "StopIteration caught"
         break
-  else:
-    summ.process(extractResult.itervalues().next())
+      else:
+        summ.process(extractResult.itervalues().next())
 
 
 def startGrouping():
