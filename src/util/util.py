@@ -26,7 +26,7 @@ def parse_arg_range(args, type_=int):
     # returns [1,2,3,5,8] e.g. in case of "1-3,5,8"
     res = list()
     for arg in args.split(","):
-        if "-" in arg:
+        if type_ is int and "-" in arg:
             a, b = arg.split("-")
             res += range(type_(min(a, b)), type_(max(a, b))+1)
         else:
