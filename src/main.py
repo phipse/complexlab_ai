@@ -1,15 +1,21 @@
-# Purpose:    Create API crawler, feature extractor and summarist and provide
-#	        channels between the modules.
-#	        Test the behaviour and start the grouper, after some data was
-#	        gathered.
-#
-# TLDR:	    Put it all together.
-# ----------------------------------------------------------------------------
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
+"""main.py
+
+Purpose:    Create API crawler, feature extractor and summarist and provide
+        channels between the modules.
+        Test the behaviour and start the grouper, after some data was
+        gathered.
+
+TLDR:	    Put it all together.
+"""
+
+import sys
 import json
 import logging
-from urllib2 import Request, urlopen, URLError
 from argparse import ArgumentParser
+from urllib2 import Request, urlopen, URLError
 from os.path import join, exists, realpath, dirname
 
 from util import Task, parse_arg_range
@@ -25,7 +31,7 @@ fileListIterator = iter(featureFileList)
 
 
 def extractor_stream(featureExtractor, crawlerList):
-    """ Stream API data to extractor """
+    """stream API data to extractor """
     summ = Summarist()
     for crawler in crawlerList:
         while True:
@@ -43,6 +49,7 @@ def extractor_stream(featureExtractor, crawlerList):
 
 
 def crawl(args, crawler_list):
+    """runs every crawler in crawler_list"""
     for c in crawler_list:
         if args.local_ds_build:
             c.buildDataSetFromFs()
@@ -54,6 +61,7 @@ def crawl(args, crawler_list):
 
 
 def extract(args, task, crawler_list):
+    """runs every crawler in crawler_list"""
     # init and start feature extractor
     logging.debug("Extracting")
     feature_extractor = Extractor()
@@ -73,10 +81,11 @@ def extract(args, task, crawler_list):
 
 
 def group():
-    print "Start grouping"
+    """run the grouper"""
+    logging.debug("Start grouping")
     groupi = Grouper()
     groupi.run()
-    print "Finished grouping"
+    logging("Finished grouping")
 
 
 def __parse_args():
@@ -108,11 +117,17 @@ def __parse_args():
 
 
 def __setup_logging(args):
+    """sets the format and level of the log output"""
     lvl = logging.DEBUG if args.verbose > 0 else logging.INFO
     logging.basicConfig(level=lvl)
 
 
 def __validate_paths(args):
+    """checks paths and urls in args for availability:
+    * args.src_path
+    * args.real_data_dir
+    * args.mongo_url
+    """
     for p in [args.src_path, args.real_data_dir]:
         if not exists(p):
             logging.fatal("%s does not exist.", p)
@@ -127,7 +142,7 @@ def __validate_paths(args):
 
 
 def __prepare_task(args):
-    """prepares the task givein by args.task_path"""
+    """inits the task given by args.task_path"""
     task_path = args.task_path
     if not task_path.endswith(".json"):
         task_path = join("tasks/", "%s.json" % task_path)
@@ -135,6 +150,7 @@ def __prepare_task(args):
 
 
 def __setup_crawlers(args):
+    """inits the crawlers and returns them in a list"""
     create_crawler = lambda x: API_crawler(join(args.src_path,
                                                 "crawlers/%s" % x),
                                            args.real_data_dir)
@@ -147,6 +163,7 @@ def __setup_crawlers(args):
 
 
 def __cli_main():
+    """the command line interface application"""
     args = __parse_args()
     __setup_logging(args)
     if not __validate_paths(args):
@@ -167,4 +184,4 @@ def __cli_main():
 
 
 if __name__ == "__main__":
-    __cli_main()
+    sys.exit(__cli_main())
