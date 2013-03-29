@@ -116,12 +116,6 @@ def __parse_args():
     return args
 
 
-def __setup_logging(args):
-    """sets the format and level of the log output"""
-    lvl = logging.INFO if args.verbose == 0 else logging.DEBUG
-    logging.basicConfig(level=lvl)
-
-
 def __validate_paths(args):
     """checks paths and urls in args for availability:
     * args.src_path
@@ -162,10 +156,23 @@ def __setup_crawlers(args):
     return crawlerList
 
 
+def __setup_loggers(args):
+    fmt = '%(asctime)s %(levelname)-9s %(filename)s:%(lineno)d %(funcName)s() %(message)s'
+    lvl = logging.ERROR if args.verbose == 0 else logging.DEBUG
+    sh = logging.StreamHandler()
+    sh.setLevel(lvl)
+    sh.setFormatter(logging.Formatter(fmt=fmt))
+    logging.root.handlers = []
+    logging.root.addHandler(sh)
+    logging.root.setLevel(lvl)
+    for i in range(0, 50, 10):
+        logging.log(i, logging.getLevelName(i))
+
+
 def __cli_main():
     """the command line interface application"""
     args = __parse_args()
-    __setup_logging(args)
+    __setup_loggers(args)
     if not __validate_paths(args):
         return 1
 
