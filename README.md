@@ -14,6 +14,6 @@ src/main.py --help  # read usage
 On Ubuntu:
 ```bash
 sudo pip install -r requirements.txt
-sudo systemctl start mongod  # run mongodb daemon
+sudo service mongod start  # run mongodb daemon
 src/main.py --help  # read usage
 ```
