@@ -85,7 +85,7 @@ def group():
     logging.debug("Start grouping")
     groupi = Grouper()
     groupi.run()
-    logging("Finished grouping")
+    logging.debug("Finished grouping")
 
 
 def __parse_args():
@@ -118,7 +118,7 @@ def __parse_args():
 
 def __setup_logging(args):
     """sets the format and level of the log output"""
-    lvl = logging.DEBUG if args.verbose > 0 else logging.INFO
+    lvl = logging.INFO if args.verbose == 0 else logging.DEBUG
     logging.basicConfig(level=lvl)
 
 
@@ -169,9 +169,9 @@ def __cli_main():
     if not __validate_paths(args):
         return 1
 
-    # maybe thread this? up until now, I store results on disk; caching? -- phi
     task, crawler_list = __prepare_task(args), __setup_crawlers(args)
 
+    # maybe thread this? up until now, I store results on disk; caching? -- phi
     if not args.skip_crawl:
         crawl(args, crawler_list)
     if not args.skip_extract:
