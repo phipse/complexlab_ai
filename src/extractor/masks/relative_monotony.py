@@ -3,7 +3,6 @@
 from mask import Mask
 
 class RelativeIncreasing(Mask):
-    name = "increasing"
     can_overlay = False
 
     def can_start(self, time, value):
@@ -27,8 +26,6 @@ class RelativeIncreasing(Mask):
 
 
 class RelativeDecreasing(RelativeIncreasing):
-    name = "decreasing"
-
     def has_to_end(self, time, value):
         res = value > self.value
         if res:
