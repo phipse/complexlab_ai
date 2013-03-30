@@ -1,7 +1,6 @@
-import json
 import sys
-from features import FeatureGroup
-from extractor.masks import *
+import json
+import logging
 
 class Task(object):
     def check_api(self, api):
@@ -17,13 +16,14 @@ class Task(object):
             sys.exit("Error parsing config: no 'options' in feature '%s' specified" % fto['type'])
 
     def __init__(self, path):
-        self.masks = []
-        task = json.load(open(path))
-        if not 'apis' in task: sys.exit("Error parsing config: no 'apis' specfied")
+        self.mask_names = []
+        logging.debug("Loading json %s", path)
+        task = json.load(open(path, "r"))
+        if 'apis' not in task:
+            raise SyntaxError("Error parsing config: no 'apis' specfied")
         for api in task['apis']:
             self.check_api(api)
             for fto in api['features_to_observe']:
                 self.check_fto(api, fto)
-                mask_gen = getattr(globals()[fto['type'].split('.')[0]], fto['type'].split('.')[1])
-                feature_group = FeatureGroup(fto['type'], fto['default_attr_ranges'], fto['options'])
-                self.masks.append({"feature_group": feature_group, "mask_gen": mask_gen})
+                self.mask_names.append(fto["type"].strip())
+

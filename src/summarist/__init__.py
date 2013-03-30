@@ -1,6 +1,7 @@
 from sys import exit
 import logging
 from pymongo import Connection
+
 from summarist.meta import Meta
 
 class Summarist(object):
@@ -15,10 +16,11 @@ class Summarist(object):
 
     def process(self, features):
         for feature in features:
-            self.db.features.insert({"name": feature.feature_group.name, "attributes": str(feature.attributes)}) # TODO ensureIndex on name, remove str if possible
-            if(self.db.features.find({"name": feature.feature_group.name}).count() % 1000 == 0):
+            logging.debug("inserting %s", feature)
+            self.db.features.insert({"name": feature.name, "attributes": str(feature)}) # TODO ensureIndex on name, remove str if possible
+            if(self.db.features.find({"name": feature.name}).count() % 1000 == 0):
                 # update meta-object
-                meta = Meta(feature.feature_group, self.db) # get or create meta object of feature group
+                meta = Meta(feature.name, self.db) # get or create meta object of feature group
                 meta.learn_from_attributes(feature.attributes)
                 meta.save()
 

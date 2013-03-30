@@ -67,13 +67,9 @@ def extract(args, task, crawler_list):
     feature_extractor = Extractor()
 
     # FEATURE LIST:
-    names = parse_arg_range(args.extraction_masks, type_=str)
-    all_masks = get_all_masks(names)
+    cli_mask_names = parse_arg_range(args.extraction_masks, type_=str)
+    all_masks = get_all_masks(cli_mask_names + task.mask_names)
     feature_extractor.add_feature_masks(all_masks)
-
-    for mask in task.masks:
-        feature_extractor.add_feature_mask(mask['mask_gen'],
-                                           mask['feature_group'])
 
     # data storage paths
     extractor_stream(feature_extractor, crawler_list)
@@ -157,7 +153,7 @@ def __setup_crawlers(args):
 
 
 def __setup_loggers(args):
-    fmt = '%(asctime)s %(levelname)-9s %(filename)s:%(lineno)d %(funcName)s() %(message)s'
+    fmt = '%(asctime)s %(levelname)-6s %(funcName)s() %(message)s'
     lvl = logging.ERROR if args.verbose == 0 else logging.DEBUG
     sh = logging.StreamHandler()
     sh.setLevel(lvl)

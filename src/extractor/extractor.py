@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 
 from masks import get_all_masks
 
@@ -6,8 +7,15 @@ from masks import get_all_masks
 class ExtractionIterator(object):
     data_iter = iter(list())
 
-    def __init__(self, data_dict, extractor):
+    def __init__(self, extractor, data_filehandle=None, data_dict=None):
         self.extractor = extractor
+        if data_filehandle is not None and data_dict is None:
+            self.data_iter = data_filehandle
+        elif data_filehandle is None and data_dict is not None:
+            self.data_iter = data_dict.itervalues()
+        else:
+            raise Exception("Please give dict xor filehandle")
+        self.data_iter = extractor.from_filehandle(data_filehandle)
 
     def next(self):
         for i, d in self.data_iter:
@@ -20,9 +28,9 @@ class Extractor(object):
     """basic extractor skeletton"""
     available_masks = list()
 
-    def add_feature_mask(self, feature_mask, feature_group):
+    def add_feature_mask(self, feature_mask):
         """adds a feature mask to it's collection"""
-        self.available_masks.append({"mask_gen" : feature_mask, "feature_group" : feature_group})
+        self.available_masks.append(feature_mask)
 
     def add_feature_masks(self, feature_masks):
         """adds a list of feature masks to it's collection"""
@@ -38,10 +46,10 @@ class Extractor(object):
 
     def extract(self, data_dict):
         """extraction dummy (returns empty list)"""
-        features = dict()
+        features = defaultdict(list)
         for i, d in data_dict.items():
             features[i] += self.extract_dataset(identification=i, data=d)
-        return features
+        return dict(features)
 
     def from_filehandle(self, filehandle, iterable=False):
         """read data from python filehandle.

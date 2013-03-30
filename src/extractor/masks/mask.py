@@ -6,6 +6,8 @@
 
 import logging
 
+from features import Feature
+
 class Mask(object):
     """super class for feature conditions. fits everywhere."""
 
@@ -13,12 +15,10 @@ class Mask(object):
     can_overlay = True
     value = 0
 
-    def __init__(self, feature_group):
-        self.name = feature_group.name
+    def __init__(self):
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
-        self.feature_group = feature_group 
 
     def can_start(self, time, value):
         """implementors may override this"""
@@ -57,7 +57,7 @@ class Mask(object):
 
     def make_feature(self):
         """constructs a feature description"""
-        return self.feature_group.create_feature([self.__t0, self.__t1, self.value])
+        return Feature(name=self.name, t0=self.__t0, t1=self.__t1, value=self.value)
 
     def is_stub(self, time, value):
         return self.__t0 == self.__t_prev

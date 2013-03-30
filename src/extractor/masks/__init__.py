@@ -8,7 +8,7 @@
 import os
 import glob
 
-__all__ = [ os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname(__file__)+"/*.py") if not os.path.basename(f).startswith('__')] # import all masks, from outside: from extractor.masks import * - TODO make this better! ;-)
+# __all__ = [os.path.basename(f)[:-3] for f in glob.glob(os.path.dirname(__file__)+"/*.py") if not os.path.basename(f).startswith('__')] # import all masks, from outside: from extractor.masks import * - TODO make this better! ;-)
 
 import sys
 import glob
@@ -45,9 +45,7 @@ def get_all_masks(whitelist=["mask"], directory=THISDIR):
     Mask = dict(mask_classes)["Mask"]
 
     for rel_path in glob.glob(join(directory, "*.py")):
-        logging.debug(rel_path)
         name = basename(rel_path)[:-3]
-        logging.debug("%s %s", name, whitelist)
         if "__" in name or name not in whitelist:
             logging.debug("ignored %s", name)
             pass
