@@ -30,9 +30,10 @@ featureFileList = list()
 fileListIterator = iter(featureFileList)
 
 
-def extractor_stream(featureExtractor, crawlerList):
+def extractor_stream(task, featureExtractor, crawlerList):
     """stream API data to extractor """
-    summ = Summarist()
+    
+    summ = Summarist(task.default_attr_ranges)
     for crawler in crawlerList:
         while True:
             try:
@@ -72,7 +73,7 @@ def extract(args, task, crawler_list):
     feature_extractor.add_feature_masks(all_masks)
 
     # data storage paths
-    extractor_stream(feature_extractor, crawler_list)
+    extractor_stream(task, feature_extractor, crawler_list)
     logging.debug("done extracting")
 
 
