@@ -1,19 +1,20 @@
-import sys
 import json
 import logging
 
 class Task(object):
     def check_api(self, api):
-        if not 'name' in api: sys.exit("Error parsing config: api without a 'name'")
-        if not 'features_to_observe' in api: sys.exit("Error parsing config: no 'features_to_observe' in API '%s' specfied" % api['name'])
+        if not 'name' in api:
+            raise SyntaxError("Error parsing config: api without a 'name'")
+        if not 'features_to_observe' in api:
+            raise SyntaxError("Error parsing config: no 'features_to_observe' in API '%s' specfied" % api['name'])
 
     def check_fto(self, api, fto):
         if not 'type' in fto:
-            sys.exit("feature_to_observe without a type in API '%s'" % api['name'])
+            raise SyntaxError("feature_to_observe without a type in API '%s'" % api['name'])
         if not 'default_attr_ranges' in fto:
-            sys.exit("Error parsing config: no 'default_attr_ranges' in feature '%s' specified" % fto['type'])
+            raise SyntaxError("Error parsing config: no 'default_attr_ranges' in feature '%s' specified" % fto['type'])
         if not 'options' in fto:
-            sys.exit("Error parsing config: no 'options' in feature '%s' specified" % fto['type'])
+            raise SyntaxError("Error parsing config: no 'options' in feature '%s' specified" % fto['type'])
 
     def __init__(self, path):
         self.mask_names = []
