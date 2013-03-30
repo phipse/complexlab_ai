@@ -18,7 +18,7 @@ class Meta(object):
         for i in range(0, len(attributes)-1):
             if self.feature_group.default_attr_ranges[i] == None: # only update attribute_range if not initially specified by user (via feature-config)
                 if self.data['attr_ranges'][i] == None:
-                    self.data['attr_ranges'][i] = [feature.attributes[i], feature.attributes[i]] # [min, max]
+                    self.data['attr_ranges'][i] = [attributes[i], attributes[i]] # [min, max]
                 elif attributes[i] < self.data['attr_ranges'][i][0]: # update min?
                     self.data['attr_ranges'][i][0] = attributes[i]
                 elif attributes[i] > self.data['attr_ranges'][i][1]: # update max?
