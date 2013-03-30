@@ -107,7 +107,7 @@ def __parse_args():
                      help="DO NOT extract from files",)
     cli.add_argument("--extraction_masks", "-x", default="", type=str,
                      help="comma separated list of mask names")
-    cli.add_argument("--verbose", "-v", default=0, type=int,
+    cli.add_argument("--verbose", "-v", default=False, action="store_true",
                      help="verbose mode")
     args = cli.parse_args()
     args.src_path = dirname(realpath(__file__))
@@ -165,8 +165,6 @@ def __setup_loggers(args):
     logging.root.handlers = []
     logging.root.addHandler(sh)
     logging.root.setLevel(lvl)
-    for i in range(0, 50, 10):
-        logging.log(i, logging.getLevelName(i))
 
 
 def __cli_main():
