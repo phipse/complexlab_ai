@@ -18,6 +18,7 @@ class Task(object):
 
     def __init__(self, path):
         self.mask_names = []
+        self.default_attr_ranges = {}
         logging.debug("Loading json %s", path)
         task = json.load(open(path, "r"))
         if 'apis' not in task:
@@ -27,4 +28,5 @@ class Task(object):
             for fto in api['features_to_observe']:
                 self.check_fto(api, fto)
                 self.mask_names.append(fto["type"].strip())
+                self.default_attr_ranges[fto["type"].strip()] = fto["default_attr_ranges"]
 
