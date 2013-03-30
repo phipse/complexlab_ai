@@ -3,7 +3,6 @@
 (c) Peter Schwede
 
 """
-
 import logging
 from os.path import basename
 
@@ -16,7 +15,8 @@ class Mask(object):
     value = 0
 
     def __init__(self):
-        self.name = "%s_%s" % (basename(__file__[:-4]), self.__class__)
+        self.name = "%s_%s" % (basename(__file__[:-4]),
+                               self.__class__.__name__)
         self.__t0 = 0
         self.__t1 = 0
         self.__t_prev = 0
