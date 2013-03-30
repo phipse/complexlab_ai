@@ -3,7 +3,6 @@
 from mask import Mask
 
 class AbsoluteIncreasing(Mask):
-    name = "increasing"
     can_overlay = False
 
     def can_start(self, time, value):
@@ -18,8 +17,6 @@ class AbsoluteIncreasing(Mask):
 
 
 class AbsoluteDecreasing(AbsoluteIncreasing):
-    name = "decreasing"
-
     def has_to_end(self, time, value):
         jupp = value > self.value
         if jupp:
