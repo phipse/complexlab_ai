@@ -2,6 +2,7 @@ from sys import exit
 import logging
 from pymongo import Connection
 import bson
+import datetime
 
 from summarist.meta import Meta
 
@@ -20,9 +21,14 @@ class Summarist(object):
 
     def insert_feature(self, feature):
         logging.debug("inserting %s", feature)
+	dummyTime = datetime.time()
         for attr in feature:
-            feature[attr] = bson.BSON(feature[attr])
+	    if type(feature[attr]) == datetime.date:
+	      feature[attr] = datetime.datetime.combine(feature[attr], dummyTime)
+	    #else:
+	      #feature[attr] = bson.BSON(feature[attr])
         entry = {"name": feature.name, "attributes": feature} # TODO ensureIndex on name
+	logging.debug(entry)
         self.db.features.insert(entry)
 
     def process(self, features):
