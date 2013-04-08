@@ -21,7 +21,7 @@ class Task(object):
     def __init__(self, path):
         self.mask_names = []
         self.default_attr_ranges = {}
-        self.merge_threshold = {}
+        self.merge_thresholds = {}
         logging.debug("Loading json %s", path)
         task = json.load(open(path, "r"))
         if 'name' not in task:
@@ -35,4 +35,4 @@ class Task(object):
                 self.check_fto(api, fto)
                 self.mask_names.append(fto["type"].strip())
                 self.default_attr_ranges[fto["type"].strip()] = fto["default_attr_ranges"]
-                self.merge_threshold[fto["type"].strip()] = fto["merge_threshold"]
+                self.merge_thresholds[fto["type"].strip()] = fto["merge_threshold"]
