@@ -18,6 +18,7 @@ class API_crawler(object):
     self.__symfile = file( syms, "r" )
     self.initIdentifier()
     self._dataPath = dataPath
+    self.crawlerName = syms.split('/')[len(syms.split('/'))-1].split('_')[0]
  
 
   def initIdentifier(self):
@@ -69,19 +70,23 @@ class API_crawler(object):
       dictusMongus = dict()
 
       for line in test.readlines():
-	line = line.split(",")
-	dat = line[0]
-	value = float(line[4])
-	dat = dat.split("-")
-	ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
-	dictusMongus.update( {ti:value} )
+		line = line.split(",")
+		dat = line[0]
+		value = float(line[4])
+		dat = dat.split("-")
+		ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
+		dictusMongus.update( {ti:value} )
 
-      nojs = { self.__identifier[cnt] : dictusMongus}
+      nojs = { 'crawlerName' : self.crawlerName }
+      nojs.update({ 'name' : self.__identifier[cnt] })
+      nojs.update({ 'data' : dictusMongus})
+      print nojs
+      return;
       filename = join(storepath, self.__identifier[cnt])
       if not exists(storepath):
-	os.makedirs(storepath) 
+		os.makedirs(storepath) 
       if isfile(filename):
-	os.remove(filename)
+		os.remove(filename)
       f = file(filename, "w+")
       f.write( str( nojs))
       f.flush()
@@ -91,7 +96,7 @@ class API_crawler(object):
       cnt += 1
       # STOP CRAWLING AFTER 10 FILES:
       if cnt == 10:
-	break;
+		break;
     print "done"
 
   
@@ -122,6 +127,8 @@ class API_crawler(object):
     logging.debug("Building done")
     
 
+  def getCrawlerName(self):
+	  return self.crawlerName
 
 if __name__ == "__main__":
   crawl = API_crawler( "NASDAQ_syms" )
