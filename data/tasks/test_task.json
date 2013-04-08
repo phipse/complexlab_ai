@@ -6,6 +6,7 @@
     "features_to_observe": [{
       "type": "absolute_monotony",
       "default_attr_ranges": [null, null, null],
+      "merge_threshold": 0.95,
       "options": {}
     }]
   }]
