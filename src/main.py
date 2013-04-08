@@ -33,7 +33,7 @@ fileListIterator = iter(featureFileList)
 def extractor_stream(task, featureExtractor, crawlerList):
     """stream API data to extractor """
     
-    summ = Summarist(task.default_attr_ranges)
+    summ = Summarist(task.default_attr_ranges, task.merge_thresholds)
     for crawler in crawlerList:
         while True:
             try:

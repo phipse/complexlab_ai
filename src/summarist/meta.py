@@ -2,14 +2,14 @@ import logging
 
 class Meta(object):
     @classmethod
-    def create(cls, name, default_attr_ranges, db):
-        data = {"name": name, "default_attr_ranges": default_attr_ranges, "attr_ranges" : default_attr_ranges}
+    def create(cls, name, default_attr_ranges, merge_threshold, db):
+        data = { "name": name, "default_attr_ranges": default_attr_ranges, "attr_ranges": default_attr_ranges, "merge_threshold": merge_threshold }
         db.meta.insert(data)
 
     def __init__(self, name, db):
         self.db = db
         self.data = db.meta.find_one({"name": name})
-        if not self.data: 
+        if not self.data:
             logging.error("Access to non-existant Meta-Object with name: %s" % name)
             exit(1)
 

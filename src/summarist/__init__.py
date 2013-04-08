@@ -7,7 +7,7 @@ import datetime
 from summarist.meta import Meta
 
 class Summarist(object):
-    def __init__(self, all_default_attr_ranges, connection=None):
+    def __init__(self, all_default_attr_ranges, merge_thresholds, connection=None):
         if connection is None:
             try:
                 connection = Connection()
@@ -17,7 +17,7 @@ class Summarist(object):
         self.db = connection.ai
 
         for name, default_attr_ranges in all_default_attr_ranges.iteritems():
-            Meta.create(name, default_attr_ranges, self.db)
+            Meta.create(name, default_attr_ranges, merge_thresholds[name], self.db)
 
     def insert_feature(self, feature):
         logging.debug("inserting %s", feature)
