@@ -80,8 +80,6 @@ class API_crawler(object):
       nojs = { 'crawlerName' : self.crawlerName }
       nojs.update({ 'name' : self.__identifier[cnt] })
       nojs.update({ 'data' : dictusMongus})
-      print nojs
-      return;
       filename = join(storepath, self.__identifier[cnt])
       if not exists(storepath):
 		os.makedirs(storepath) 
