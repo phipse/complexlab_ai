@@ -21,14 +21,14 @@ class Summarist(object):
 
     def insert_feature(self, feature):
         logging.debug("inserting %s", feature)
-	dummyTime = datetime.time()
+        dummyTime = datetime.time()
         for attr in feature:
-	    if type(feature[attr]) == datetime.date:
-	      feature[attr] = datetime.datetime.combine(feature[attr], dummyTime)
-	    #else:
-	      #feature[attr] = bson.BSON(feature[attr])
+            if type(feature[attr]) == datetime.date:
+                feature[attr] = datetime.datetime.combine(feature[attr], dummyTime)
+            #else:
+                #feature[attr] = bson.BSON(feature[attr])
         entry = {"name": feature.name, "attributes": feature} # TODO ensureIndex on name
-	logging.debug(entry)
+        logging.debug(entry)
         self.db.features.insert(entry)
 
     def process(self, features):
