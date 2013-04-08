@@ -137,7 +137,9 @@ def __prepare_task(args):
     task_path = args.task_path
     if not task_path.endswith(".json"):
         task_path = join("tasks/", "%s.json" % task_path)
-    return Task(task_path)
+    task = Task(task_path)
+    print "Starting task '%s'" % task.name
+    return task
 
 
 def __setup_crawlers(args):

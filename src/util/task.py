@@ -24,6 +24,9 @@ class Task(object):
         self.merge_threshold = {}
         logging.debug("Loading json %s", path)
         task = json.load(open(path, "r"))
+        if 'name' not in task:
+            raise SyntaxError("Error parsing task: no 'name' specified")
+        self.name = task['name'].strip()
         if 'apis' not in task:
             raise SyntaxError("Error parsing task: no 'apis' specfied")
         for api in task['apis']:
