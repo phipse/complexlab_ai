@@ -41,14 +41,15 @@ class Extractor(object):
         all_masks = get_all_masks(whitelist=mask_package_names, directory=plug_dir)
         self.add_feature_masks(all_masks)
 
-    def extract_dataset(self, identification, data):
+    def extract_dataset(self, ident, data):
         return list()
 
     def extract(self, data_dict):
         """extraction dummy (returns empty list)"""
         features = defaultdict(list)
+        ident = {"name": data_dict["name"], "crawler name": data_dict["crawlerName"],}
         for i, d in data_dict.items():
-            features[i] += self.extract_dataset(identification=i, data=d)
+            features[i] += self.extract_dataset(ident, data_dict["data"])
         return dict(features)
 
     def from_filehandle(self, filehandle, iterable=False):

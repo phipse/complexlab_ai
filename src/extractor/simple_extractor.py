@@ -21,9 +21,9 @@ class SimpleExtractor(Extractor):
                 return False
         return True
 
-    def extract_dataset(self, identification, data):
+    def extract_dataset(self, ident, data):
         res = list()
-        logging.debug("id: %s", identification)
+        logging.debug("id: %s", ident)
         sorted_times = sorted(data.keys())
         self.__running_masks = list()
         # iterate over all time, value pairs
@@ -36,7 +36,7 @@ class SimpleExtractor(Extractor):
                     self.__running_masks.remove(mask)
 
                     if not mask.is_stub(time, value):
-                        feat = mask.make_feature()
+                        feat = mask.make_feature(ident)
                         res.append(feat)
                 else:
                     # mask probably needs a step callback
@@ -53,7 +53,7 @@ class SimpleExtractor(Extractor):
             time, value = sorted_times[-1], data[sorted_times[-1]]
             mask.end(time, value)
             if not mask.is_stub(time, value):
-                feat = mask.make_feature()
+                feat = mask.make_feature(ident)
                 res.append(feat)
         return res
 

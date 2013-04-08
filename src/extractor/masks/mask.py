@@ -56,9 +56,9 @@ class Mask(object):
                       self, success, self.value, value)
         return success
 
-    def make_feature(self):
+    def make_feature(self, ident):
         """constructs a feature description"""
-        return Feature(name=self.name,
+        return Feature(name=self.name, ident=ident,
                        t0=self.__t0, t1=self.__t1, value=self.value)
 
     def is_stub(self, time, value):
