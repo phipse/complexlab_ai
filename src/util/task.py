@@ -1,5 +1,7 @@
 import json
 import logging
+import extractor
+import sys
 
 class Task(object):
     def check_api(self, api):
@@ -13,17 +15,26 @@ class Task(object):
             raise SyntaxError("feature_to_observe without a type in API '%s'" % api['name'])
         if not 'default_attr_ranges' in fto:
             raise SyntaxError("Error parsing task: no 'default_attr_ranges' in feature '%s' specified" % fto['type'])
+        if not 'merge_frequency' in fto:
+            raise SyntaxError("Error parsing task: no 'merge_frequency' in feature '%s' specified" % fto['type'])
         if not 'merge_threshold' in fto:
             raise SyntaxError("Error parsing task: no 'merge_threshold' in feature '%s' specified" % fto['type'])
         if not 'options' in fto:
             raise SyntaxError("Error parsing task: no 'options' in feature '%s' specified" % fto['type'])
 
     def __init__(self, path):
-        self.mask_names = []
+        self.mask_groups = []
         self.default_attr_ranges = {}
+        self.merge_frequencies = {}
         self.merge_thresholds = {}
+
         logging.debug("Loading json %s", path)
-        task = json.load(open(path, "r"))
+        try:
+            task = json.load(open(path, "r"))
+        except ValueError:
+            logging.fatal("Error parsing task: Invalid Syntax of JSON file")
+            sys.exit(1)
+
         if 'name' not in task:
             raise SyntaxError("Error parsing task: no 'name' specified")
         self.name = task['name'].strip()
@@ -33,6 +44,8 @@ class Task(object):
             self.check_api(api)
             for fto in api['features_to_observe']:
                 self.check_fto(api, fto)
-                self.mask_names.append(fto["type"].strip())
-                self.default_attr_ranges[fto["type"].strip()] = fto["default_attr_ranges"]
-                self.merge_thresholds[fto["type"].strip()] = fto["merge_threshold"]
+                self.mask_groups.append(fto["type"].strip())
+                for mask_name in [x().name for x in extractor.masks.get_all_masks([fto["type"].strip()])]:
+                    self.default_attr_ranges[mask_name] = fto["default_attr_ranges"]
+                    self.merge_frequencies[mask_name] = fto["merge_frequency"]
+                    self.merge_thresholds[mask_name] = fto["merge_threshold"]
