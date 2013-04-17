@@ -24,6 +24,7 @@ class Task(object):
 
     def __init__(self, path):
         self.mask_groups = []
+        self.mask_names_by_type = {}
         self.default_attr_ranges = {}
         self.merge_frequencies = {}
         self.merge_thresholds = {}
@@ -46,6 +47,10 @@ class Task(object):
                 self.check_fto(api, fto)
                 self.mask_groups.append(fto["type"].strip())
                 for mask_name in [x().name for x in extractor.masks.get_all_masks([fto["type"].strip()])]:
+                    self.mask_names_by_type[fto["type"].strip()] = mask_name
                     self.default_attr_ranges[mask_name] = fto["default_attr_ranges"]
                     self.merge_frequencies[mask_name] = fto["merge_frequency"]
                     self.merge_thresholds[mask_name] = fto["merge_threshold"]
+
+    def get_default_attr_ranges_by_type(self, type):
+        return self.default_attr_ranges[self.mask_names_by_type[type]]
