@@ -16,7 +16,7 @@ class API_crawler(object):
     self.__fileNames = list()
     self.__fileIterator = iter(self.__fileNames)
     self.__symfile = file( syms, "r" )
-    if startTime != null:
+    if startTime != None:
         self.__crawlStartTime = startTime
     else:
         self.__crawlStartTime=1900
@@ -34,7 +34,7 @@ class API_crawler(object):
 
   def setTimeFrame(self):
     today = date.today()
-    startString = "&a=0&b=1&c=" +self.__crawlStartTime + "&d=%i&e=%i&f=%i"
+    startString = "&a=0&b=1&c=" + str(self.__crawlStartTime) + "&d=%i&e=%i&f=%i"
     return startString % (today.month-1, today.day, today.year,)
 
 
