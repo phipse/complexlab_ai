@@ -2,6 +2,7 @@ import json
 import logging
 import extractor
 import sys
+from operator import itemgetter
 
 class Task(object):
     def check_api(self, api):
@@ -11,8 +12,8 @@ class Task(object):
             raise SyntaxError("Error parsing task: no 'features_to_observe' in API '%s' specfied" % api['name'])
 
     def check_fto(self, api, fto):
-        if not 'type' in fto:
-            raise SyntaxError("feature_to_observe without a type in API '%s'" % api['name'])
+        if not 'mask_group' in fto:
+            raise SyntaxError("feature_to_observe without a 'mask_group' in API '%s'" % api['name'])
         if not 'default_attr_ranges' in fto:
             raise SyntaxError("Error parsing task: no 'default_attr_ranges' in feature '%s' specified" % fto['type'])
         if not 'merge_frequency' in fto:
@@ -23,11 +24,8 @@ class Task(object):
             raise SyntaxError("Error parsing task: no 'options' in feature '%s' specified" % fto['type'])
 
     def __init__(self, path):
+        self.masks = []
         self.mask_groups = []
-        self.mask_names_by_type = {}
-        self.default_attr_ranges = {}
-        self.merge_frequencies = {}
-        self.merge_thresholds = {}
 
         logging.debug("Loading json %s", path)
         try:
@@ -45,12 +43,10 @@ class Task(object):
             self.check_api(api)
             for fto in api['features_to_observe']:
                 self.check_fto(api, fto)
-                self.mask_groups.append(fto["type"].strip())
-                for mask_name in [x().name for x in extractor.masks.get_all_masks([fto["type"].strip()])]:
-                    self.mask_names_by_type[fto["type"].strip()] = mask_name
-                    self.default_attr_ranges[mask_name] = fto["default_attr_ranges"]
-                    self.merge_frequencies[mask_name] = fto["merge_frequency"]
-                    self.merge_thresholds[mask_name] = fto["merge_threshold"]
+                fto["mask_group"] = fto["mask_group"].strip()
+                self.mask_groups.append(fto["mask_group"])
+                for mask_name in [x().name for x in extractor.masks.get_all_masks([fto["mask_group"]])]:
+                    self.masks.append(dict(fto.items() + {"mask_name": mask_name}.items()))
 
-    def get_default_attr_ranges_by_type(self, type):
-        return self.default_attr_ranges[self.mask_names_by_type[type]]
+    def get_masks_by_mask_group(self, type):
+        return filter(lambda x: x['mask_group'] == type, self.masks)

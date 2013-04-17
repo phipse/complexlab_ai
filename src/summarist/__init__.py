@@ -8,7 +8,7 @@ from features import Feature
 from summarist.meta import Meta
 
 class Summarist(object):
-    def __init__(self, all_default_attr_ranges, merge_frequencies, merge_thresholds, connection=None):
+    def __init__(self, masks, connection=None):
         if connection is None:
             try:
                 connection = Connection()
@@ -22,8 +22,8 @@ class Summarist(object):
         self.db.features.remove()
         self.db.characteristics.remove()
 
-        for name, default_attr_ranges in all_default_attr_ranges.iteritems():
-            Meta.create(name, default_attr_ranges, merge_frequencies[name], merge_thresholds[name], self.db)
+        for mask in masks:
+            Meta.create(mask['mask_name'], mask['default_attr_ranges'], mask['merge_frequency'], mask['merge_threshold'], self.db)
 
     def insert_feature(self, feature):
         logging.debug("inserting %s", feature)

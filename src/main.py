@@ -33,7 +33,7 @@ fileListIterator = iter(featureFileList)
 def extractor_stream(task, featureExtractor, crawlerList):
     """stream API data to extractor """
     
-    summ = Summarist(task.default_attr_ranges, task.merge_frequencies, task.merge_thresholds)
+    summ = Summarist(task.masks)
     for crawler in crawlerList:
         while True:
             try:
@@ -147,7 +147,7 @@ def __setup_crawlers(args, task):
     create_crawler = lambda x: API_crawler(join(args.src_path,
                                                 "crawlers/%s" % x),
                                            args.real_data_dir,
-                                           task.default_attr_ranges['mask_AbsoluteIncreasing']['t0'])
+                                           task.get_masks_by_mask_group('absolute_monotony')[0]['default_attr_ranges']['t0'])
     crawlers = ["NASDAQ_syms",
                 #"NYSE_syms",
                 ]

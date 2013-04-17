@@ -4,7 +4,7 @@
     "name": "NASDAQ",
     "options": {},
     "features_to_observe": [{
-      "type": "absolute_monotony",
+      "mask_group": "absolute_monotony",
       "default_attr_ranges": {"t0": null, "t1": null, "value": null},
       "merge_frequency": 100,
       "merge_threshold": 0.95,
