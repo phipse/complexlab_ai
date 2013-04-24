@@ -71,8 +71,8 @@ class Summarist(object):
             second = Feature.from_db(characteristics[bf[0]])
 
             first.merge(second)
-            db.characteristics.save(first.db_entry)
-            db.characteristics.remove({"_id": second._id})
+            self.db.characteristics.save(first.db_entry())
+            self.db.characteristics.remove({"_id": second._id})
             best_fits[bf[0]] = None
 
         return True # signalize that one or more characteristics were merged
