@@ -94,7 +94,7 @@ class Summarist(object):
                 self.update_characteristics(feature.name, meta.get_merge_frequency())
 
                 # merge characteristics
-                while True:
-                    changed = self.merge_characteristics(feature.name, meta.get_merge_threshold())
-                    if not changed: break
+                #while True:
+                #    changed = self.merge_characteristics(feature.name, meta.get_merge_threshold())
+                #    if not changed: break
         return True
