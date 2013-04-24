@@ -31,14 +31,26 @@ class Meta(object):
 
     def learn_from_attributes(self, attributes):
         for attr in attributes:
-            dar= self.data["default_attr_ranges"]
-            if not dar.has_key(attr) or dar[attr] == None: # only update attribute_range if not initially specified by user (via feature-config)
-                if self.data['attr_ranges'][attr] == None:
-                    self.data['attr_ranges'][attr] = [attributes[attr], attributes[attr]] # [min, max]
-                elif attributes[attr] < self.data['attr_ranges'][attr][0]: # update min?
-                    self.data['attr_ranges'][attr][0] = attributes[attr]
-                elif attributes[attr] > self.data['attr_ranges'][attr][1]: # update max?
-                    self.data['attr_ranges'][attr][1] = attributes[attr]
+            dar = self.data["default_attr_ranges"]
+            cont = False
+            if not dar.has_key(attr) or not dar[attr]:
+                self.data["default_attr_ranges"][attr] = [None, None]
+            if not self.data['attr_ranges'].has_key(attr) or not self.data['attr_ranges'][attr]:
+                self.data['attr_ranges'][attr] = [attributes[attr], attributes[attr]]
+                cont = True
+            if not self.data['attr_ranges'][attr][0]:
+                self.data['attr_ranges'][attr][0] = attributes[attr]
+                cont = True
+            if not self.data['attr_ranges'][attr][1]:
+                self.data['attr_ranges'][attr][1] = attributes[attr]
+                cont = True
+
+            if cont: continue
+
+            if not dar[attr][0] and attributes[attr] < self.data['attr_ranges'][attr][0]: # update min?
+                self.data['attr_ranges'][attr][0] = attributes[attr]
+            elif not dar[attr][1] and attributes[attr] > self.data['attr_ranges'][attr][1]: # update max?
+                self.data['attr_ranges'][attr][1] = attributes[attr]
 
     def save(self):
         self.db.meta.save(self.data)
