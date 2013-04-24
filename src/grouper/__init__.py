@@ -154,6 +154,12 @@ class Grouper(object):
     # if group has not enough members 
     #	mark as uninteresting
 
+    def run(self, mapred ):
+        if mapred:
+            self.grouping();
+        else:
+            self.identDbSetup()
+            self.combineIdents();
 
 
 

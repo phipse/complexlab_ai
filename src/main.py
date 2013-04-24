@@ -81,7 +81,8 @@ def group():
     """run the grouper"""
     logging.debug("Start grouping")
     groupi = Grouper()
-    groupi.run()
+    # pass True to use mapreduce and False to use combine
+    groupi.run( False )
     logging.debug("Finished grouping")
 
 
