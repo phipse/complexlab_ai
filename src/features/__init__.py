@@ -7,7 +7,6 @@ class Feature(dict):
         self.name = name
         if not isinstance(ident, list):
             ident = [ident]
-        print ident
         self.ident = ident
         self.attributes = kwargs
 
