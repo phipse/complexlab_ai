@@ -39,7 +39,7 @@ class Feature(dict):
         return entry
 
     def distance_to(self, other, ranges):
-        res = 1.
+        res = 0.0
         for key in self:
             if isinstance(self[key], str):
                 pass
@@ -47,7 +47,7 @@ class Feature(dict):
                 raise TypeError
             else: 
                 min = ranges[key][0]
-                max = ranges[key][0]
+                max = ranges[key][1]
 
                 first = self[key]
                 second = other[key]
@@ -61,10 +61,8 @@ class Feature(dict):
                     max = time.mktime(max.timetuple())
                     isdatetime = True
 
-                diff = second - first - min
+                diff = abs(second - first)
                 range = max - min
-
-                print "diff: %s, max: %s, min: %s, isdatetime: %s" % (diff, max, min, isdatetime)
 
                 if range != 0:
                     res += diff / range / len(self)
