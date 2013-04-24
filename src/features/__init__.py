@@ -71,6 +71,10 @@ class Feature(dict):
     def merge(self, other):
         new_count = len(self) + len(other)
         for key in self: # iterate over attributes
-            self[key] = self[key]*len(self)/new_count + other[key]*len(other)/new_count
+            if isinstance(self[key], datetime.datetime):
+                print "self[key]: %s, other[key]: %s, identsize: %s" % (self[key], other[key], len(other.ident))
+                self[key] = datetime.datetime.fromtimestamp(time.mktime(self[key].timetuple()) * len(self) / new_count + time.mktime(other[key].timetuple()) * len(other) / new_count)
+            else:
+                self[key] = self[key]*len(self)/new_count + other[key]*len(other)/new_count
 
         self.ident += other.ident
