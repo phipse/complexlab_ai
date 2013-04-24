@@ -1,4 +1,3 @@
-import collections
 import datetime
 import time
 
@@ -6,7 +5,9 @@ class Feature(dict):
     def __init__(self, name, ident, **kwargs):
         self._id = None # database id
         self.name = name
-        if not isinstance(ident, collections.Iterable): ident = [ident]
+        if not isinstance(ident, list):
+            ident = [ident]
+        print ident
         self.ident = ident
         self.attributes = kwargs
 
@@ -52,14 +53,19 @@ class Feature(dict):
                 first = self[key]
                 second = other[key]
 
+                isdatetime = False
+
                 if isinstance(self[key], datetime.datetime):
                     first = time.mktime(first.timetuple())
                     second = time.mktime(second.timetuple())
                     min = time.mktime(min.timetuple())
                     max = time.mktime(max.timetuple())
+                    isdatetime = True
 
                 diff = second - first - min
                 range = max - min
+
+                print "diff: %s, max: %s, min: %s, isdatetime: %s" % (diff, max, min, isdatetime)
 
                 if range != 0:
                     res += diff / range / len(self)
