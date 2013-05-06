@@ -39,7 +39,7 @@ class Mask(object):
         self.__t_prev = time
         self.__t1 = time
         success = self.can_start(time, value)
-        logging.debug("%s: %s %s", self, success, value,)
+        # logging.debug("%s: %s %s", self, success, value,)
         return success
 
     def next(self, time, value):
@@ -52,7 +52,7 @@ class Mask(object):
         """returns True if feature has to end here."""
         self.__t1 = self.__t_prev
         success = force or self.has_to_end(time, value)
-        logging.debug("%s: %s (o,n=%s,%s)",
+        # logging.debug("%s: %s (o,n=%s,%s)",
                       self, success, self.value, value)
         return success
 
