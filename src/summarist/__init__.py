@@ -87,6 +87,7 @@ class Summarist(object):
             self.db.characteristics.save(first.db_entry())
             self.db.characteristics.remove({"_id": second._id})
             best_fits[bf[0]] = None
+            best_fits[bf[1]] = None
 
             # TODO recalculate best_fits with same bf[0]
 
