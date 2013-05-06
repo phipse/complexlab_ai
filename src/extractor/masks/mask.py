@@ -53,7 +53,7 @@ class Mask(object):
         self.__t1 = self.__t_prev
         success = force or self.has_to_end(time, value)
         # logging.debug("%s: %s (o,n=%s,%s)",
-                      self, success, self.value, value)
+        #              self, success, self.value, value)
         return success
 
     def make_feature(self, ident):
