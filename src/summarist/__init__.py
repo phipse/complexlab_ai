@@ -51,29 +51,34 @@ class Summarist(object):
         characteristics = self.db.characteristics.find({"name": name})
         meta = Meta(name, self.db)
 
+        chars = list(characteristics)
+
         # find "best fit" (other characteristic with minimal distance) for each characteristic
-        best_fits = [None]*characteristics.count() #  list of tuples: (index of best fit, distance)
-        for first in range(characteristics.count()):
-            for second in range(characteristics.count()):
-                if first is not second:
-                    distance = Feature.from_db(characteristics[first]).distance_to(Feature.from_db(characteristics[second]), meta.get_attr_ranges())
-                    if not best_fits[first] or distance < best_fits[first][1]:
-                        best_fits[first] = (second, distance)
+        best_fits = [None]*len(chars) #  list of tuples: (index of best fit, distance)
+        best_distance = 1.
+        for first_i, first in enumerate(chars):
+            for second_i, second in enumerate(chars):
+                if first['_id'] is not second['_id']:
+                    distance = Feature.from_db(first).distance_to(Feature.from_db(second), meta.get_attr_ranges())
+                    if (not best_fits[first_i]) or (distance < best_fits[first_i][2]):
+                        best_fits[first_i] = (first_i, second_i, distance)
+                        if distance < best_distance: best_distance = distance
+
+        if best_distance > (1-merge_threshold): return False # signalize that no characteristic needed to be merged
         
-        if best_fits[0][1] > (1-merge_threshold): return False # signalize that nothing was merged
+        for bf in best_fits:
+            if not bf: continue # continue if first has been merged before
+            if not best_fits[bf[1]]: continue # continue if second has been merged before
 
-        best_fits = sorted(best_fits, key=lambda bf: bf[1]) # sort by distance
-        for i, bf in enumerate(best_fits):
-            if bf[1] > (1-merge_threshold): break # only merge characteristics within merge_threshold
-            if not bf: continue
-
-            first = Feature.from_db(characteristics[i])
-            second = Feature.from_db(characteristics[bf[0]])
+            first = Feature.from_db(chars[bf[0]])
+            second = Feature.from_db(chars[bf[1]])
 
             first.merge(second)
             self.db.characteristics.save(first.db_entry())
             self.db.characteristics.remove({"_id": second._id})
             best_fits[bf[0]] = None
+
+            # TODO recalculate best_fits with same bf[0]
 
         return True # signalize that one or more characteristics were merged
 
@@ -94,7 +99,7 @@ class Summarist(object):
                 self.update_characteristics(feature.name, meta.get_merge_frequency())
 
                 # merge characteristics
-                #while True:
-                #    changed = self.merge_characteristics(feature.name, meta.get_merge_threshold())
-                #    if not changed: break
+                while True:
+                    changed = self.merge_characteristics(feature.name, meta.get_merge_threshold())
+                    if not changed: break
         return True
