@@ -8,7 +8,7 @@ import json
 
 class API_crawler(object):
 
-  def __init__(self, syms, dataPath): 
+  def __init__(self, syms, dataPath, startTime): 
     self.__index = 0
     self.__identifier = list()  
     self.__first = True
@@ -16,6 +16,10 @@ class API_crawler(object):
     self.__fileNames = list()
     self.__fileIterator = iter(self.__fileNames)
     self.__symfile = file( syms, "r" )
+    if startTime != None:
+        self.__crawlStartTime = startTime
+    else:
+        self.__crawlStartTime=1900
     self.initIdentifier()
     self._dataPath = dataPath
     self.crawlerName = syms.split('/')[len(syms.split('/'))-1].split('_')[0]
@@ -30,7 +34,7 @@ class API_crawler(object):
 
   def setTimeFrame(self):
     today = date.today()
-    startString = "&a=0&b=1&c=1900&d=%i&e=%i&f=%i"
+    startString = "&a=0&b=1&c=" + str(self.__crawlStartTime) + "&d=%i&e=%i&f=%i"
     return startString % (today.month-1, today.day, today.year,)
 
 

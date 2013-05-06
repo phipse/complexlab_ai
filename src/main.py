@@ -33,7 +33,7 @@ fileListIterator = iter(featureFileList)
 def extractor_stream(task, featureExtractor, crawlerList):
     """stream API data to extractor """
     
-    summ = Summarist(task.default_attr_ranges, task.merge_thresholds)
+    summ = Summarist(task.masks)
     for crawler in crawlerList:
         while True:
             try:
@@ -68,8 +68,8 @@ def extract(args, task, crawler_list):
     feature_extractor = Extractor()
 
     # FEATURE LIST:
-    cli_mask_names = parse_arg_range(args.extraction_masks, type_=str)
-    all_masks = get_all_masks(cli_mask_names + task.mask_names)
+    cli_mask_groups = parse_arg_range(args.extraction_masks, type_=str)
+    all_masks = get_all_masks(cli_mask_groups + task.mask_groups)
     feature_extractor.add_feature_masks(all_masks)
 
     # data storage paths
@@ -81,7 +81,8 @@ def group():
     """run the grouper"""
     logging.debug("Start grouping")
     groupi = Grouper()
-    groupi.run()
+    # pass True to use mapreduce and False to use combine
+    groupi.run( False )
     logging.debug("Finished grouping")
 
 
@@ -142,11 +143,12 @@ def __prepare_task(args):
     return task
 
 
-def __setup_crawlers(args):
+def __setup_crawlers(args, task):
     """inits the crawlers and returns them in a list"""
     create_crawler = lambda x: API_crawler(join(args.src_path,
                                                 "crawlers/%s" % x),
-                                           args.real_data_dir)
+                                           args.real_data_dir,
+                                           task.get_masks_by_mask_group('absolute_monotony')[0]['default_attr_ranges']['t0'])
     crawlers = ["NASDAQ_syms",
                 #"NYSE_syms",
                 ]
@@ -173,7 +175,8 @@ def __cli_main():
     if not __validate_paths(args):
         return 1
 
-    task, crawler_list = __prepare_task(args), __setup_crawlers(args)
+    task = __prepare_task(args)
+    crawler_list =  __setup_crawlers(args, task)
 
     # maybe thread this? up until now, I store results on disk; caching? -- phi
     if not args.skip_crawl:
