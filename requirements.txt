@@ -1,4 +1,7 @@
+argparse
+dateutil
+gevent
+gevent-websocket
+glob
 pymongo
 requests
-glob
-dateutil

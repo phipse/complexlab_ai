@@ -1,6 +1,7 @@
 #!/bin/python
 
 from pymongo import Connection
+import logging
 
 class Grouper(object):
   
@@ -9,6 +10,7 @@ class Grouper(object):
         connection = Connection()
         self.__db = connection.ai
         self.__characTable = self.__db.characteristics
+        self.identDbSetup()
 #        self.__charactDB = self.__db.charactDB
 #        for x in self.__db.Characteristics.find():
 #            self.__charactDB.insert(x)
@@ -19,6 +21,7 @@ class Grouper(object):
         '''Insert elements in the form of { Identifier : [characteristics] } to
         a new collection'''
         
+        logging.debug( "Setup ident database." )
         idDb = self.__db.idents
         if idDb.find().count() > 0:
             return;
@@ -37,14 +40,14 @@ class Grouper(object):
                             valueList } } )
                 else:
                     idDb.insert( {'name': key, 'value': [value]} )
-#        logging.debug("New database setup: idents")
-        print("New database setup: idents")
+        logging.debug("New database setup: idents")
 
 
 
     def combineIdents(self): 
         '''Combines two entries and intersects the characteristic lists'''
 
+        logging.debug( "Grouping via combineIdents" )
         idDb = self.__db.idents
         for ele in idDb.find():
             for snd in idDb.find():
@@ -84,6 +87,7 @@ class Grouper(object):
         all combinations '''
         # idDbSetup done; "_id", "name", "value"
         
+        logging.debug( "Grouping via MapReduce" );
         IDs = self.__db.idents.distinct('name')
         ret =  self.__db.idents.map_reduce( \
                 self.mapfunc(), \
@@ -92,7 +96,6 @@ class Grouper(object):
                 scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
                     "toObj" : self.toObj(),
                 } ); 
-        print ret
 
         # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
@@ -162,7 +165,6 @@ class Grouper(object):
         if mapred:
             self.grouping();
         else:
-            self.identDbSetup()
             self.combineIdents();
 
 
