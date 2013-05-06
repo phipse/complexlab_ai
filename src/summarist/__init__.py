@@ -24,9 +24,9 @@ class Summarist(object):
                 logging.fatal(e)
                 exit(1)
         self.db = connection.ai
-        #self.db.meta.create_index('name')
-        #self.db.features.create_index('name')
-        #self.db.characteristics.create_index('name')
+        self.db.meta.create_index('name')
+        self.db.features.create_index('name')
+        self.db.characteristics.create_index('name')
 
         self.db.meta.remove()
         self.db.features.remove()
