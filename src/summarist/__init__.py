@@ -7,6 +7,14 @@ from features import Feature
 
 from summarist.meta import Meta
 
+def idents_disjoint(first, second):
+    disjoint = True
+    for item1 in first:
+        for item2 in second:
+            if item1['name'] == item2['name']:
+                disjoint = False
+    return disjoint
+
 class Summarist(object):
     def __init__(self, masks, connection=None):
         if connection is None:
@@ -58,7 +66,7 @@ class Summarist(object):
         best_distance = 1.
         for first_i, first in enumerate(chars):
             for second_i, second in enumerate(chars):
-                if first['_id'] is not second['_id']:
+                if (first['_id'] is not second['_id']) and (idents_disjoint(first['ident'], second['ident'])):
                     distance = Feature.from_db(first).distance_to(Feature.from_db(second), meta.get_attr_ranges())
                     if (not best_fits[first_i]) or (distance < best_fits[first_i][2]):
                         best_fits[first_i] = (first_i, second_i, distance)
