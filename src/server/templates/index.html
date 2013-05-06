@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <script>
+        var curr_article = null;
+
+        // animate page switch
+        show_article = function article(id) {
+          if(id == curr_article) return;
+          if(curr_article == null) {
+            $("article#"+id).fadeIn("fast");
+          } else {
+            $("article#"+curr_article).fadeOut("fast", function() {
+              $("article#"+id).fadeIn("fast");
+          });
+          }
+          curr_article = id;
+        }
+
+        $(document).ready(function(){
+          if ("WebSocket" in window) {
+            ws = new WebSocket("ws://" + document.domain + ":5000/websocket");
+            ws.onmessage = function (msg) {
+              var message = JSON.parse(msg.data);
+              console.log(message)
+              if(message["type"] == "pong") {
+                $("p#log").html("Ping: "+message.timedelta);
+              } else {
+                $("p#log").html(message.output);
+              }
+            };
+          };
+
+          // Bind buttons to websocket
+          $("button#send").click(function() {
+            ws.send(JSON.stringify({'output': 'Sent from my browser!'}));
+          });
+          $("button#ping").click(function() {
+            ws.send(JSON.stringify({'type': 'ping', 'time': (new Date()).getTime()}));
+          });
+
+          // Cleanly close websocket when unload window
+          window.onbeforeunload = function() {
+            ws.onclose = function () {}; // disable onclose handler first
+            ws.close()
+          };
+
+          // assemple menu
+          $("article").each(function(i, item) {
+            console.log(i);
+            console.log(item);
+            var id = item.id;
+            var button = $("<button id=\""+id+"_button\">"+id+"</button>");
+            button.click(function () { show_article(id); });
+            $("#menu").append(button);
+            $("#"+id).prepend("<h1>"+id+"</h1>").hide();
+          });
+          show_article("About");
+        });
+      </script>
+  </head>
+  <body>
+    <header>
+      <h1>{{ title }}</h1>
+      <div id="menu"></div>
+    </header>
+    <article id="About">
+      <p>BLABLABLA</p>
+      <p id="log"></p>
+      <button id="send" type="button">Send!</button>
+      <button id="ping" type="button">Ping!</button>
+    </article>
+    <article id="Input">
+    <form id="input_form">
+    </form>
+    </article>
+    <article id="Output">
+    <svg>
+    <ellipse class="node" cx=10 cy=10 rx=5 ry=10></ellipse>
+    </scg>
+    </article>
+    <footer>{{ title }} (c) 2013 Copyright PMP tu-dresden</footer>
+  </body>
+</html>
