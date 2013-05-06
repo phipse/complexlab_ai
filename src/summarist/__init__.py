@@ -24,8 +24,10 @@ class Summarist(object):
                 logging.fatal(e)
                 exit(1)
         self.db = connection.ai
+        #self.db.meta.create_index('name')
+        #self.db.features.create_index('name')
+        #self.db.characteristics.create_index('name')
 
-        # TODO ask if data should be removed
         self.db.meta.remove()
         self.db.features.remove()
         self.db.characteristics.remove()
@@ -41,7 +43,7 @@ class Summarist(object):
                 feature[attr] = datetime.datetime.combine(feature[attr], dummyTime)
             #else:
                 #feature[attr] = bson.BSON(feature[attr])
-        entry = {"name": feature.name, "ident": feature.ident, "attributes": feature} # TODO ensureIndex on name
+        entry = {"name": feature.name, "ident": feature.ident, "attributes": feature}
         logging.debug(entry)
         self.db.features.insert(feature.db_entry())
 
