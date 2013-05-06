@@ -37,7 +37,8 @@ class Grouper(object):
                             valueList } } )
                 else:
                     idDb.insert( {'name': key, 'value': [value]} )
-        logging.debug("New database setup: idents")
+#        logging.debug("New database setup: idents")
+        print("New database setup: idents")
 
 
 
@@ -79,11 +80,19 @@ class Grouper(object):
 #  ---------------------------
 # mongo shit
     def grouping(self):
-        IDs = self.__charactDB.distinct('name')
-        for max_element in range(10):
-            self.__charactDB = self.__charactDB.map_reduce( self.mapfunc(max_element),
-                    self.reducefunc(),{ "reduce": "charactGroups" },
-                    scope= { "ids": IDs } ); 
+        ''' On basis of the db.idents collection map reduce is executed to generate
+        all combinations '''
+        # idDbSetup done; "_id", "name", "value"
+        
+        IDs = self.__db.idents.distinct('name')
+        ret =  self.__db.idents.map_reduce( \
+                self.mapfunc(), \
+                self.reducefunc(), \
+                "reduced", \
+                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
+                    "toObj" : self.toObj(),
+                } ); 
+        print ret
 
         # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
@@ -91,10 +100,11 @@ class Grouper(object):
   # repeat until max_elements == Maximum one element characteristics
 
 
-    def mapfunc(self, maxChar):
+    def mapfunc(self):
+
       # mongodb wants javascript for map reduce
     # checks: don't join me with myself; 
-    #	      if I am a joined ID, ignore me unless I am a max size concatenation;
+    ##	      if I am a joined ID, ignore me unless I am a max size concatenation;
     #	      if the ID you want to join me with, is already joined, ignore it;
     #	      if I already contain the ID you want to join me with, ignore it;
     #
@@ -103,51 +113,45 @@ class Grouper(object):
     #	I think it's the grouper, as the summarist is not writing to _id
     # ERROR: Cannot wirte property name to read-only object
     #	Where the fuck is that coming frome? 
-        return """function map( maxChar ) {
-        print( maxChar );
-      self = this;
-      if( self.name == undefined )
-      {	
-        if( self._id != undefined ) 
-    {
-      if( self._id.split('_').length < maxChar ) return;
-      ids.forEach( function( x ) {
-        if( self._id == x ) return;
-        if( x.split('_').length > 1 ) return;
-        if( self._id.split('_').indexOf(x) != -1 ) return;
-        emit( [self._id, x].sort().join('_'), self.attributes );
-      })
-    }
-    else
-    {
-      print( "self _id: " + self._id );
-      print( "self object_id: " + self._object_id );
-    }
-      }
-      else
-      {
-    if( self.name.split('_').length < maxChar ) return;
-    ids.forEach( function( x ) {
-      if( self.name == x ) return;
-      if( x.split('_').length > 1 ) return;
-      if( self.name.split('_').indexOf(x) != -1 ) return;
-      emit( [self.name, x].sort().join('_'), self.attributes );
-    })
-      }
-    }; """
+        return """function map( ) {
+            self = this;
+            ids.forEach( function( x ) 
+            {
+                if( self.name == x ) return;
+                if( self.name.split('_').indexOf(x) != -1 ) return;
+                emit( [self.name, x].sort().join('_'), self.value );
+            })
+        }; """
 
     def reducefunc(self):
         return """function reduce( key, values ) {
-    print(key)
-    print(values)
+            //print(key)
+            //print(values)
+            var test = eval( intersect_func )
+            //print(test)
+            ret = test.apply(null, values);
+            //print( "ret: " +ret);
+            //print( Object.prototype.toString.call(ret) )
+            eval( toObj )
+            ret = toObj(ret)
+            //print( Object.prototype.toString.call(ret) )
+            return ret;
       };
       """
 
 
-#    def intersect(self):
-#        return """intersect = function( a, b ) {
-#        a.filter( function(x) { return b.indexOf(x) >= 0; });
-#          };"""
+    def mapredIntersect(self):
+        return """intersect_func = function( a, b ) {
+        return a.filter( function(x) { return b.indexOf(x) >= 0; });
+          };"""
+
+    def toObj(self):
+        return """function toObj(arr) {
+            var rv = {};
+            for( var i = 0; i < arr.length; ++i )
+                if( arr[i] !== undefined ) rv[i] = arr[i];
+            return rv;
+        }"""
 
 
 #  def cleanup(self):
@@ -167,6 +171,9 @@ if __name__ == "__main__":
     grouper = Grouper()
     grouper.identDbSetup()
     print "identDBsetup done"
-    grouper.combineIdents()
-    print "combineIdents done"
+    grouper.grouping();
+    print "grouping done"
+
+#    grouper.combineIdents()
+#    print "combineIdents done"
 
