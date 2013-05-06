@@ -62,10 +62,10 @@ class Grouper(object):
                         newValue = self.intersect( ele['value'], snd['value'] )
                         toInsert = {'name' : newKey, 'value' : newValue}
                         if len(newValue) != 0:
-                            if idDb.find( toInsert ).count() == 0:
+                            if idDb.find( {'name' : newKey} ).count() == 0:
                                 idDb.insert( toInsert  )
-                                logging.debug( "Combined Ident inserted: %s", \
-                                        toInsert )
+#                                logging.debug( "Combined Ident inserted: %s", \
+#                                        toInsert )
                     
 
     def namePartial(self, fst, snd):
