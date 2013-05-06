@@ -7,7 +7,7 @@
       "mask_group": "absolute_monotony",
       "default_attr_ranges": {"t0": ["ISODate('1970-01-01T00:00:00')", null], "t1": null, "value": null},
       "merge_frequency": 100,
-      "merge_threshold": 0.95,
+      "merge_threshold": 0.999,
       "options": {}
     }]
   }]
