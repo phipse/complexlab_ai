@@ -49,15 +49,34 @@ class Grouper(object):
 
         logging.debug( "Grouping via combineIdents" )
         idDb = self.__db.idents
-        for ele in idDb.find():
-            for snd in idDb.find():
-                if ele == snd:
-                    continue;
-                newKey = ele['name'] + "_" + snd['name']
-                newValue = self.intersect( ele['value'], snd['value'] )
-                if len(newValue) != 0:
-                    idDb.insert( {'name' : newKey, 'value' : newValue} )
+        combIdDb = self.__db.combIds
+        for x in range(1,5):
+            for ele in idDb.find():
+                for snd in idDb.find():
+                    if ele == snd:
+                        continue;
+                    if not self.namePartial( ele['name'], snd['name'] ):
+                        newKey = "_".join( sorted( set( \
+                            sorted( (ele['name']).split('_') ) + \
+                            sorted( (snd['name']).split('_') )  ) ) )
+                        newValue = self.intersect( ele['value'], snd['value'] )
+                        toInsert = {'name' : newKey, 'value' : newValue}
+                        if len(newValue) != 0:
+                            if idDb.find( toInsert ).count() == 0:
+                                idDb.insert( toInsert  )
+                                logging.debug( "Combined Ident inserted: %s", \
+                                        toInsert )
+                    
 
+    def namePartial(self, fst, snd):
+        '''Tests if parts of the second name are already present in the first
+        name. If so returns True, if not return False.'''
+        fst = fst.split('_')
+        snd = snd.split('_')
+        for x in snd:
+            if x in fst:
+                return True
+        return False
 
 
     def intersect(self, first, second):
