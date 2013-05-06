@@ -32,6 +32,7 @@ class Summarist(object):
         self.db.features.insert(entry)
 
     def process(self, features):
+        logging.debug("procesing %s" % features)
         for feature in features:
             self.insert_feature(feature)
             if(self.db.features.find({"name": feature.name}).count() % 1000 == 0):
