@@ -50,22 +50,22 @@ class Grouper(object):
         logging.debug( "Grouping via combineIdents" )
         idDb = self.__db.idents
         combIdDb = self.__db.combIds
-        for x in range(1,5):
-            for ele in idDb.find():
-                for snd in idDb.find():
+        for x in range(0,1):
+            for ele in list(idDb.find()):
+                for snd in list(idDb.find()):
                     if ele == snd:
                         continue;
                     if not self.namePartial( ele['name'], snd['name'] ):
                         newKey = "_".join( sorted( set( \
                             sorted( (ele['name']).split('_') ) + \
                             sorted( (snd['name']).split('_') )  ) ) )
-                        newValue = self.intersect( ele['value'], snd['value'] )
-                        toInsert = {'name' : newKey, 'value' : newValue}
-                        if len(newValue) != 0:
-                            if idDb.find( {'name' : newKey} ).count() == 0:
-                                idDb.insert( toInsert  )
-#                                logging.debug( "Combined Ident inserted: %s", \
-#                                        toInsert )
+                        if idDb.find( {'name' : newKey} ).count() == 0:
+                            newValue = self.intersect( ele['value'], snd['value'] )
+                            toInsert = {'name' : newKey, 'value' : newValue}
+                            if len(newValue) != 0:
+                                    idDb.insert( toInsert  )
+#                                    logging.debug( "Combined Ident inserted: %s", \
+#                                            toInsert )
                     
 
     def namePartial(self, fst, snd):
@@ -141,18 +141,29 @@ class Grouper(object):
             {
                 if( self.name == x ) return;
                 if( self.name.split('_').indexOf(x) != -1 ) return;
+                print( ">>>> map: ", [self.name, x].sort().join('_') );
+                print( ">>>> map: " , self.value.length );
                 emit( [self.name, x].sort().join('_'), self.value );
             })
         }; """
 
     def reducefunc(self):
         return """function reduce( key, values ) {
-            //print(key)
-            //print(values)
+            print(key)
+            print("0: ", values[0])
+            print("1: ", values[1])
+            print(values[0].length, values[1].length)
+        var coll = []
+        for( var x in values[0] ) { 
+            if (values[1].indexOf(x) >= 0) 
+            { coll.push(x); }  
+        }
+        print( "Coll " + coll) ;
+        
             var test = eval( intersect_func )
             //print(test)
             ret = test.apply(null, values);
-            //print( "ret: " +ret);
+            print( "ret: " +ret);
             //print( Object.prototype.toString.call(ret) )
             eval( toObj )
             ret = toObj(ret)
@@ -164,6 +175,8 @@ class Grouper(object):
 
     def mapredIntersect(self):
         return """intersect_func = function( a, b ) {
+        print( "intersect a: ", a.length )
+        print( "intersect b: ", b.length )
         return a.filter( function(x) { return b.indexOf(x) >= 0; });
           };"""
 
