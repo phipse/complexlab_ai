@@ -135,12 +135,8 @@ class Grouper(object):
     #	      if the ID you want to join me with, is already joined, ignore it;
     #	      if I already contain the ID you want to join me with, ignore it;
     #
-    # BUGS: somehow the grouper creates DB_entries with the name in the _id
-    # section, I guess its a mongodb internal thing. 
-    #	I think it's the grouper, as the summarist is not writing to _id
-    # ERROR: Cannot wirte property name to read-only object
-    #	Where the fuck is that coming frome? 
         return """function map( ) {
+            print( ids  + " " + ids.length)
             self = this;
             ids.forEach( function( x ) 
             {
@@ -155,15 +151,13 @@ class Grouper(object):
     def reducefunc(self):
         return """function reduce( key, values ) {
             print(key)
-            print("0: ", values[0])
-            print("1: ", values[1])
-            print(values[0].length, values[1].length)
+            print("value array size: " + values.length)
         var coll = []
         for( var x in values[0] ) { 
             if (values[1].indexOf(x) >= 0) 
             { coll.push(x); }  
         }
-        print( "Coll " + coll) ;
+        print( "Coll: " + coll) ;
         
             var test = eval( intersect_func )
             //print(test)
@@ -180,9 +174,9 @@ class Grouper(object):
 
     def mapredIntersect(self):
         return """intersect_func = function( a, b ) {
-        print( "intersect a: ", a.length )
-        print( "intersect b: ", b.length )
-        return a.filter( function(x) { return b.indexOf(x) >= 0; });
+//        print( "intersect a: ", a.length )
+//        print( "intersect b: ", b.length )
+        return a.filter( function(item) { return (b.indexOf(item) != -1) } )
           };"""
 
     def toObj(self):
