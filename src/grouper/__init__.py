@@ -50,20 +50,24 @@ class Grouper(object):
         logging.debug( "Grouping via combineIdents" )
         idDb = self.__db.idents
         combIdDb = self.__db.combIds
-        for x in range(0,1):
+        if combIdDb.find().count() == 0: 
+            for x in idDb.find():
+                combIdDb.insert(x)
+
+        for x in range(0,5):
             for ele in list(idDb.find()):
-                for snd in list(idDb.find()):
+                for snd in combIdDb.find():
                     if ele == snd:
                         continue;
                     if not self.namePartial( ele['name'], snd['name'] ):
                         newKey = "_".join( sorted( set( \
                             sorted( (ele['name']).split('_') ) + \
                             sorted( (snd['name']).split('_') )  ) ) )
-                        if idDb.find( {'name' : newKey} ).count() == 0:
+                        if combIdDb.find( {'name' : newKey} ).count() == 0:
                             newValue = self.intersect( ele['value'], snd['value'] )
                             toInsert = {'name' : newKey, 'value' : newValue}
                             if len(newValue) != 0:
-                                    idDb.insert( toInsert  )
+                                    combIdDb.insert( toInsert  )
 #                                    logging.debug( "Combined Ident inserted: %s", \
 #                                            toInsert )
                     
