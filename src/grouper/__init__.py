@@ -54,9 +54,10 @@ class Grouper(object):
             for x in idDb.find():
                 combIdDb.insert(x)
 
-        for x in range(0,5):
+        for x in range(0,3):
+            logging.debug("%s round-trip", x)
             for ele in list(idDb.find()):
-                for snd in combIdDb.find():
+                for snd in list(combIdDb.find()):
                     if ele == snd:
                         continue;
                     if not self.namePartial( ele['name'], snd['name'] ):
