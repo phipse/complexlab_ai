@@ -97,7 +97,7 @@ class API_crawler(object):
       f.close()
       cnt += 1
       # STOP CRAWLING AFTER 10 FILES:
-      if cnt == 10:
+      if cnt == 20:
 		break;
     print "done"
 
@@ -118,7 +118,7 @@ class API_crawler(object):
       return -1;
 
     for i in range(len(self.__identifier)):
-      if i > 100:
+      if i > 20:
 	break
       sym = join(dataSetPath, self.__identifier[i])
       if isfile(sym):
