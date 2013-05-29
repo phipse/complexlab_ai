@@ -11,6 +11,8 @@ class Grouper(object):
         self.__db = connection.ai
         self.__characTable = self.__db.characteristics
         self.identDbSetup()
+        self.empty = int(0)
+        self.content = int(0)
 #        self.__charactDB = self.__db.charactDB
 #        for x in self.__db.Characteristics.find():
 #            self.__charactDB.insert(x)
@@ -66,11 +68,13 @@ class Grouper(object):
                             sorted( (snd['name']).split('_') )  ) ) )
                         if combIdDb.find( {'name' : newKey} ).count() == 0:
                             newValue = self.intersect( ele['value'], snd['value'] )
-                            toInsert = {'name' : newKey, 'value' : newValue}
                             if len(newValue) != 0:
+                                    toInsert = {'name' : newKey, 'value' : newValue}
                                     combIdDb.insert( toInsert  )
 #                                    logging.debug( "Combined Ident inserted: %s", \
 #                                            toInsert )
+        logging.debug("Combine done: empty intersections: %i, other: %i", \
+            self.empty, self.content)
                     
 
     def namePartial(self, fst, snd):
@@ -87,7 +91,12 @@ class Grouper(object):
     def intersect(self, first, second):
         '''Intersects two lists of elements. Be aware, that lists lose
         duplicated items.'''
-        return list( set(first).intersection(set(second)) )
+        res = list( set(first).intersection(set(second)) )
+        if len(res) == 0:
+            self.empty += 1
+        else:
+            self.content += 1
+        return res
 
 
 
