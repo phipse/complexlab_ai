@@ -91,7 +91,12 @@ class Grouper(object):
     def intersect(self, first, second):
         '''Intersects two lists of elements. Be aware, that lists lose
         duplicated items.'''
-        res = list( set(first).intersection(set(second)) )
+        res = list()
+        for x in first:
+            for y in second:
+                if x == y:
+                    res.append(x)
+        sorted( res )
         if len(res) == 0:
             self.empty += 1
         else:
@@ -114,6 +119,26 @@ class Grouper(object):
       # -> simple
 
 #  ---------------------------
+    def joinIdentReduced(self):
+        for x in self.__db.idents.find():
+            x["_id"] = x["name"]
+            del x["name"]
+            self.__db.reduced.insert(x)
+
+    def grouping2(self):
+        logging.debug( "Grouping run two, directly on returend collection" );
+        self.joinIdentReduced();
+        IDs = self.__db.reduced.distinct('name')
+        ret = self.__db.reduced.map_reduce( \
+                self.mapfunc(), \
+                self.reducefunc(), \
+                "reduced2", \
+                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
+                    "toObj" : self.toObj(),
+                } ); 
+
+
+
 # mongo shit
     def grouping(self):
         ''' On basis of the db.idents collection map reduce is executed to generate
@@ -129,6 +154,7 @@ class Grouper(object):
                 scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
                     "toObj" : self.toObj(),
                 } ); 
+        logging.debug("Mapreduce returned: %s", ret )
 
         # for each char1 in db which has one_element
   #   for each char2 in db which has max_elements
@@ -140,10 +166,9 @@ class Grouper(object):
 
       # mongodb wants javascript for map reduce
     # checks: don't join me with myself; 
-    ##	      if I am a joined ID, ignore me unless I am a max size concatenation;
-    #	      if the ID you want to join me with, is already joined, ignore it;
     #	      if I already contain the ID you want to join me with, ignore it;
-    #
+    # not checked: If the reduced intersection is empty
+
         return """function map( ) {
             print( ids  + " " + ids.length)
             self = this;
@@ -151,8 +176,6 @@ class Grouper(object):
             {
                 if( self.name == x ) return;
                 if( self.name.split('_').indexOf(x) != -1 ) return;
-                print( ">>>> map: ", [self.name, x].sort().join('_') );
-                print( ">>>> map: " , self.value.length );
                 emit( [self.name, x].sort().join('_'), self.value );
             })
         }; """
@@ -160,14 +183,7 @@ class Grouper(object):
     def reducefunc(self):
         return """function reduce( key, values ) {
             print(key)
-            print("value array size: " + values.length)
-        var coll = []
-        for( var x in values[0] ) { 
-            if (values[1].indexOf(x) >= 0) 
-            { coll.push(x); }  
-        }
-        print( "Coll: " + coll) ;
-        
+            
             var test = eval( intersect_func )
             //print(test)
             ret = test.apply(null, values);
@@ -183,9 +199,19 @@ class Grouper(object):
 
     def mapredIntersect(self):
         return """intersect_func = function( a, b ) {
-//        print( "intersect a: ", a.length )
-//        print( "intersect b: ", b.length )
-        return a.filter( function(item) { return (b.indexOf(item) != -1) } )
+//        var coll = []
+//        for( var x in a) { 
+//                print( a[x].toString())
+//            for(var y in b ) {
+//                s = a[x]
+//                t = b[y]
+//                if( s == t )
+//                {
+ //                   coll.push(x) }
+//        } 
+//        }
+//        return coll
+        return a.filter( function(item) { return (b.toString().indexOf(item.toString()) != -1) } )
           };"""
 
     def toObj(self):
@@ -204,6 +230,7 @@ class Grouper(object):
     def run(self, mapred ):
         if mapred:
             self.grouping();
+#            self.grouping2();
         else:
             self.combineIdents();
 
