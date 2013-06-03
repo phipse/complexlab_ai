@@ -30,18 +30,18 @@ class Grouper(object):
         for ele in self.__characTable.find():
             for ident in ele['ident']:
                 key = ident['crawler name'] + "/" + ident['name']
-                value = ele['_id'] 
+                value = ele['_id'];
                 # if identifier already in the DB, update the value aka
                 # characteristics list
-                cursor = idDb.find( {'name' : key })
+                cursor = idDb.find( {'_id' : key })
                 if cursor.count() > 0:
                     for oldEntry in cursor:
-                        valueList = oldEntry['value']
-                        valueList.append(value)
-                        idDb.update( {'name' : key }, { "$set" : { "value" : \
-                            valueList } } )
+                        valueDict = oldEntry['value']
+                        valueDict[str(len(valueDict))] = value;
+                        idDb.update( {'_id' : key }, { "$set" : { "value" : \
+                            valueDict } } )
                 else:
-                    idDb.insert( {'name': key, 'value': [value]} )
+                    idDb.insert( {'_id': key, 'value': { "0" : value} } )
         logging.debug("New database setup: idents")
 
 
@@ -62,14 +62,15 @@ class Grouper(object):
                 for snd in list(combIdDb.find()):
                     if ele == snd:
                         continue;
-                    if not self.namePartial( ele['name'], snd['name'] ):
+                    if not self.namePartial( ele['_id'], snd['_id'] ):
                         newKey = "_".join( sorted( set( \
-                            sorted( (ele['name']).split('_') ) + \
-                            sorted( (snd['name']).split('_') )  ) ) )
-                        if combIdDb.find( {'name' : newKey} ).count() == 0:
+                            sorted( (ele['_id']).split('_') ) + \
+                            sorted( (snd['_id']).split('_') )  ) ) )
+                        if combIdDb.find( {'_id' : newKey} ).count() == 0:
                             newValue = self.intersect( ele['value'], snd['value'] )
                             if len(newValue) != 0:
-                                    toInsert = {'name' : newKey, 'value' : newValue}
+                                    toInsert = {'_id' : newKey, 'value' : \
+                                        newValue }
                                     combIdDb.insert( toInsert  )
 #                                    logging.debug( "Combined Ident inserted: %s", \
 #                                            toInsert )
@@ -128,15 +129,15 @@ class Grouper(object):
 
     def joinIdentReduced(self):
         for x in self.__db.idents.find():
-            x["_id"] = x["name"]
-            del x["name"]
-            x["value"] = self.arrToObj(x["value"])
+#            x["_id"] = x["name"]
+#            del x["name"]
+#            x["value"] = self.arrToObj(x["value"])
             self.__db.reduced.insert(x)
 
     def grouping2(self):
         logging.debug( "Grouping run two, directly on returend collection" );
         self.joinIdentReduced();
-        IDs = self.__db.reduced.distinct('name')
+        IDs = self.__db.reduced.distinct('_id')
         ret = self.__db.reduced.map_reduce( \
                 self.mapfunc(), \
                 self.reducefunc(), \
@@ -154,7 +155,7 @@ class Grouper(object):
         # idDbSetup done; "_id", "name", "value"
         
         logging.debug( "Grouping via MapReduce" );
-        IDs = self.__db.idents.distinct('name')
+        IDs = self.__db.idents.distinct('_id')
         ret =  self.__db.idents.map_reduce( \
                 self.mapfunc(), \
                 self.reducefunc(), \
@@ -182,32 +183,38 @@ class Grouper(object):
             self = this;
             ids.forEach( function( x ) 
             {
-                if( self.name == x ) return;
-                if( self.name.split('_').indexOf(x) != -1 ) return;
-                emit( [self.name, x].sort().join('_'), self.value );
+                if( self._id == x ) return;
+                if( self._id.split('_').indexOf(x) != -1 ) return;
+                emit( [self._id, x].sort().join('_'), self.value );
             })
         }; """
 
     def reducefunc(self):
         return """function reduce( key, values ) {
             print(key)
-            
+           
             var test = eval( intersect_func )
-            //print(test)
             ret = test.apply(null, values);
             print( "ret: " +ret);
-            //print( Object.prototype.toString.call(ret) )
             eval( toObj )
             ret = toObj(ret)
-            //print( Object.prototype.toString.call(ret) )
             return ret;
       };
       """
 
 
     def mapredIntersect(self):
+        """Converts the passed dicts to local arrays and intersect them."""
         return """intersect_func = function( a, b ) {
-        return a.filter( function(item) { return (b.toString().indexOf(item.toString()) != -1) } )
+        var arr1 = []
+        for( var key in a )
+            arr1.push(a[key])
+        var arr2 = []
+        for( var key in b)
+            arr2.push(a[key])
+
+        return arr1.filter( function(item) { 
+            return (arr2.toString().indexOf(item.toString()) != -1) } )
           };"""
 
     def toObj(self):
