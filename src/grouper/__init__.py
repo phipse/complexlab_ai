@@ -120,31 +120,22 @@ class Grouper(object):
       # -> simple
 
 #  ---------------------------
-    def arrToObj(self, arr):
-        ret = dict()
-        for index,item in enumerate(arr):
-            ret[str(index)]=item
-        return ret;
-            
-
-    def joinIdentReduced(self):
-        for x in self.__db.idents.find():
-#            x["_id"] = x["name"]
-#            del x["name"]
-#            x["value"] = self.arrToObj(x["value"])
-            self.__db.reduced.insert(x)
+    def addFirstToSecond(self, first, second):
+        for x in first.find():
+            second.insert(x)
 
     def grouping2(self):
         logging.debug( "Grouping run two, directly on returend collection" );
-        self.joinIdentReduced();
+        self.addFirstToSecond(self.__db.idents, self.__db.reduced);
         IDs = self.__db.reduced.distinct('_id')
         ret = self.__db.reduced.map_reduce( \
                 self.mapfunc(), \
                 self.reducefunc(), \
                 "reduced2", \
-                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
-                    "toObj" : self.toObj(),
+                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect()
                 } ); 
+        self.__db.reduced2.remove( {"value" : { } } ) 
+        logging.debug("Mapreduce run 2 returned: %s", ret )
 
 
 
@@ -160,9 +151,9 @@ class Grouper(object):
                 self.mapfunc(), \
                 self.reducefunc(), \
                 "reduced", \
-                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect(),
-                    "toObj" : self.toObj(),
+                scope= { "ids": IDs, "intersect_func" : self.mapredIntersect()
                 } ); 
+        self.__db.reduced.remove( {"value" : { } } ) 
         logging.debug("Mapreduce returned: %s", ret )
 
         # for each char1 in db which has one_element
@@ -196,8 +187,7 @@ class Grouper(object):
             var test = eval( intersect_func )
             ret = test.apply(null, values);
             print( "ret: " +ret);
-            eval( toObj )
-            ret = toObj(ret)
+            print( "ret length: " + Object.keys(ret).length)
             return ret;
       };
       """
@@ -206,24 +196,31 @@ class Grouper(object):
     def mapredIntersect(self):
         """Converts the passed dicts to local arrays and intersect them."""
         return """intersect_func = function( a, b ) {
-        var arr1 = []
-        for( var key in a )
-            arr1.push(a[key])
-        var arr2 = []
-        for( var key in b)
-            arr2.push(a[key])
+        var arr1 = {}
+        var counter = 0
+        for( var key in a ) {
+            for( var key2 in b)
+            {
+                if( a[key].toString() === b[key2].toString() )
+                {
+                   arr1[counter] = a[key]
+                   counter = counter + 1
+                }
+            }
+        }
+        return arr1;
 
-        return arr1.filter( function(item) { 
-            return (arr2.toString().indexOf(item.toString()) != -1) } )
+//        return arr1.filter( function(item) { 
+//            if((arr2.toString().indexOf(item.toString()) != -1)) {
+//                print( item )
+//                print( arr2.toString().indexOf(item.toString()) )
+//                return true;
+//                }
+//            else 
+//                return false;
+//            })
+//            return (arr2.toString().indexOf(item.toString()) != -1) } )
           };"""
-
-    def toObj(self):
-        return """function toObj(arr) {
-            var rv = {};
-            for( var i = 0; i < arr.length; ++i )
-                if( arr[i] !== undefined ) rv[i] = arr[i];
-            return rv;
-        }"""
 
 
 #  def cleanup(self):
