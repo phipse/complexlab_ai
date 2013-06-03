@@ -119,10 +119,18 @@ class Grouper(object):
       # -> simple
 
 #  ---------------------------
+    def arrToObj(self, arr):
+        ret = dict()
+        for index,item in enumerate(arr):
+            ret[str(index)]=item
+        return ret;
+            
+
     def joinIdentReduced(self):
         for x in self.__db.idents.find():
             x["_id"] = x["name"]
             del x["name"]
+            x["value"] = self.arrToObj(x["value"])
             self.__db.reduced.insert(x)
 
     def grouping2(self):
@@ -199,18 +207,6 @@ class Grouper(object):
 
     def mapredIntersect(self):
         return """intersect_func = function( a, b ) {
-//        var coll = []
-//        for( var x in a) { 
-//                print( a[x].toString())
-//            for(var y in b ) {
-//                s = a[x]
-//                t = b[y]
-//                if( s == t )
-//                {
- //                   coll.push(x) }
-//        } 
-//        }
-//        return coll
         return a.filter( function(item) { return (b.toString().indexOf(item.toString()) != -1) } )
           };"""
 
@@ -230,7 +226,7 @@ class Grouper(object):
     def run(self, mapred ):
         if mapred:
             self.grouping();
-#            self.grouping2();
+            self.grouping2();
         else:
             self.combineIdents();
 
