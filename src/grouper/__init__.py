@@ -133,7 +133,7 @@ class Grouper(object):
                 self.reducefunc(), \
                 "reduced2", \
                 scope= { "ids": IDs, "intersect_func" : self.mapredIntersect()
-                } ); 
+                }, nonAtomic=True ); 
         self.__db.reduced2.remove( {"value" : { } } ) 
         logging.debug("Mapreduce run 2 returned: %s", ret )
 
@@ -152,7 +152,7 @@ class Grouper(object):
                 self.reducefunc(), \
                 "reduced", \
                 scope= { "ids": IDs, "intersect_func" : self.mapredIntersect()
-                } ); 
+                }, nonAtomic=True ); 
         self.__db.reduced.remove( {"value" : { } } ) 
         logging.debug("Mapreduce returned: %s", ret )
 
