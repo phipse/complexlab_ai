@@ -25,7 +25,7 @@ class Grouper(object):
         
         logging.debug( "Setup ident database." )
         idDb = self.__db.idents
-        if idDb.find().count() > 0:
+        if idDb.count() > 0:
             return;
         for ele in self.__characTable.find():
             for ident in ele['ident']:
