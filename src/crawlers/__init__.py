@@ -5,6 +5,7 @@ import os
 import tempfile 
 import requests
 import json
+from multiprocessing import Process, Queue
 
 class API_crawler(object):
 
@@ -52,14 +53,52 @@ class API_crawler(object):
       buildString = startString + "s=" + self.setID();
       buildString += self.setTimeFrame()
       self.__requestAddresses.append(buildString)
-    #print len(self.__requestAddresses)
-    self.requestCSV()
+    
+    addressLen = len(self.__requestAddresses)
+    three = addressLen/3
+    
+    # three processes
+    a = self.__requestAddresses[0:three]
+    b = self.__requestAddresses[three:three+three]
+    c = self.__requestAddresses[three+three:addressLen-1]
+    #three queues
+    aq = Queue(10)
+    bq = Queue(10)
+    cq = Queue(10)
+
+    a = Process(target=self.requestCSV, args=(aq, a,))
+    b = Process(target=self.requestCSV, args=(bq, b,))
+    c = Process(target=self.requestCSV, args=(cq, c,))
+    a.start()
+    b.start()
+    c.start()
+    #empty each queue before joining
+    lastA = aq.get()
+    lastB = bq.get()
+    lastC = cq.get()
+    # "close" is a sentinel value
+    while( True ):
+      if lastA != "close":
+	self.__fileNames.append(lastA)
+	lastA = aq.get()
+      if lastB != "close":
+	self.__fileNames.append(lastB)
+	lastB = bq.get()
+      if lastC != "close":
+	self.__fileNames.append(lastC)
+	lastC = cq.get()
+      if lastA == "close" and lastB == "close" and lastC == "close":
+	break;
+
+    a.join()
+    b.join()
+    c.join()
 
   
   
-  def requestCSV(self):
+  def requestCSV(self, queue, requestAddresses):
     cnt = 0
-    for symbol in self.__requestAddresses:
+    for symbol in requestAddresses:
       r = requests.get(symbol)
       if r.status_code != 200: continue
       logging.debug("symbol: " + symbol)
@@ -80,11 +119,16 @@ class API_crawler(object):
 		dat = dat.split("-")
 		ti = date( int(dat[0]), int(dat[1]), int(dat[2]) )
 		dictusMongus.update( {ti:value} )
+      
+      identStart = symbol.find("s=")
+      identEnd = symbol.find("&a")
+      identName = symbol[identStart+2:identEnd]
+
 
       nojs = { 'crawlerName' : self.crawlerName }
-      nojs.update({ 'name' : self.__identifier[cnt] })
+      nojs.update({ 'name' : identName })
       nojs.update({ 'data' : dictusMongus})
-      filename = join(storepath, self.__identifier[cnt])
+      filename = join(storepath, identName)
       if not exists(storepath):
 		os.makedirs(storepath) 
       if isfile(filename):
@@ -93,13 +137,16 @@ class API_crawler(object):
       f.write( str( nojs))
       f.flush()
       # append new file to the list of all filenames
-      self.__fileNames.append(filename)
+      # as this is now multiprocessed put the filename in the queue
+      queue.put(filename)
       f.close()
       cnt += 1
-      # STOP CRAWLING AFTER 10 FILES:
-      if cnt == 10:
+      # STOP CRAWLING AFTER cnt FILES:
+      if cnt == 3:
 		break;
-    print "done"
+    queue.put("close")
+    queue.close()
+    logging.debug( "done" )
 
   
   def pullDataSet(self):
@@ -133,8 +180,8 @@ class API_crawler(object):
 	  return self.crawlerName
 
 if __name__ == "__main__":
-  crawl = API_crawler( "NASDAQ_syms" )
+  crawl = API_crawler( "NASDAQ_syms", "../../data/dicts/", None )
   crawl.run()
-  for i in range(10):
-    crawl.pullDataSet()
+  #for i in range(10):
+  #  crawl.pullDataSet()
 
